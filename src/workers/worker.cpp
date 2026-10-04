@@ -1,6 +1,8 @@
 #include "workers/worker.hpp"
 
 #include "departments/department.hpp"
+#include "exceptions/invalid_input_exception.hpp"
+#include "exceptions/overtime_limit_exceeded_exception.hpp"
 
 Worker::Worker(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
                std::unique_ptr<AdvancePayment> advance)
@@ -53,6 +55,55 @@ Salary Worker::calculateSalary() const {
 
 std::string Worker::getRole() const {
     return "Worker";
+}
+
+void Worker::addAbsence(std::unique_ptr<Absence> absence) {
+    if (absence == nullptr) {
+        throw InvalidInputException("Передано пустое отсутствие");
+    }
+    absences_.push_back(std::move(absence));
+}
+
+const std::vector<std::unique_ptr<Absence>>& Worker::getAbsences() const {
+    return absences_;
+}
+
+int Worker::getTotalAbsentDays() const {
+    int total = 0;
+    for (const std::unique_ptr<Absence>& absence : absences_) {
+        total += absence->getDays();
+    }
+    return total;
+}
+
+double Worker::getAveragePayRate() const {
+    if (absences_.empty()) {
+        return 1.0;
+    }
+    double total = 0.0;
+    for (const std::unique_ptr<Absence>& absence : absences_) {
+        total += absence->getPayRate();
+    }
+    return total / absences_.size();
+}
+
+void Worker::registerOvertime(double hours) {
+    if (hours <= 0.0) {
+        throw InvalidInputException("Количество сверхурочных часов должно быть положительным");
+    }
+    if (overtimeHours_ + hours > kOvertimeLimitHours) {
+        throw OvertimeLimitExceededException(fullName_, overtimeHours_ + hours, kOvertimeLimitHours);
+    }
+    overtimeHours_ += hours;
+}
+
+double Worker::getOvertimeHours() const {
+    return overtimeHours_;
+}
+
+void Worker::resetPeriod() {
+    absences_.clear();
+    overtimeHours_ = 0.0;
 }
 
 void Worker::setDepartment(Department* department) {

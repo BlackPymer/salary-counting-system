@@ -34,6 +34,16 @@ public:
 
     std::unique_ptr<Worker> terminateWorker(const std::string& departmentName, int workerId);
 
+    // Команды симуляции. Симуляция живёт снаружи и сообщает компании факты:
+    // кто сколько дней отсутствовал и по какой причине.
+    void registerAbsence(const std::string& departmentName, int workerId,
+                         std::unique_ptr<Absence> absence);
+    void registerOvertime(const std::string& departmentName, int workerId, double hours);
+
+    // Завершение расчётного периода: сбрасывает накопленные факты,
+    // чтобы они не попали в следующий месяц.
+    void endPeriod();
+
     double calculateCompanyPayroll() const;
     int getTotalWorkersCount() const;
 
@@ -41,6 +51,7 @@ public:
 
 private:
     Recruiter* findRecruiter() const;
+    Worker* findWorkerIn(const std::string& departmentName, int workerId) const;
 
     std::string name_;
     std::vector<std::unique_ptr<Department>> departments_;

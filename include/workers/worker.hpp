@@ -2,7 +2,9 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
+#include "attendance/absence.hpp"
 #include "core/date.hpp"
 #include "financial_objects/advance_payment.hpp"
 #include "financial_objects/employment_contract.hpp"
@@ -30,6 +32,9 @@ enum class WorkerType {
 // Отдел, в свою очередь, владеет сотрудником.
 class Worker {
 public:
+    // Норматив сверхурочных за расчётный период.
+    static constexpr double kOvertimeLimitHours = 80.0;
+
     Worker() = default;
     Worker(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
            std::unique_ptr<AdvancePayment> advance);
@@ -57,6 +62,18 @@ public:
 
     virtual std::string getRole() const;
 
+    // Факты, сообщённые симуляцией: сколько дней отсутствовал и почему.
+    void addAbsence(std::unique_ptr<Absence> absence);
+    const std::vector<std::unique_ptr<Absence>>& getAbsences() const;
+    int getTotalAbsentDays() const;
+
+    // Средняя ставка оплаты по всем отсутствиям за период.
+    double getAveragePayRate() const;
+
+    void registerOvertime(double hours);
+    double getOvertimeHours() const;
+    void resetPeriod();
+
     void setDepartment(Department* department);
     Department* getDepartment() const;
     bool worksIn(const Department* department) const;
@@ -76,4 +93,6 @@ private:
     std::unique_ptr<EmploymentContract> contract_;
     std::unique_ptr<AdvancePayment> advance_;
     Department* department_ = nullptr;
+    std::vector<std::unique_ptr<Absence>> absences_;
+    double overtimeHours_ = 0.0;
 };
