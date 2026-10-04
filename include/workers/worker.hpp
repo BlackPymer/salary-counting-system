@@ -10,6 +10,22 @@
 
 class Department;
 
+// Тип сотрудника. Определяет, кого именно создаст фабрика при найме.
+enum class WorkerType {
+    Accountant,
+    PayrollAccountant,
+    Administrator,
+    CustomerSupportAgent,
+    Recruiter,
+    SoftwareDeveloper,
+    SystemAdministrator,
+    Lawyer,
+    Marketer,
+    Technician,
+    ResearchScientist,
+    SecurityGuard,
+};
+
 // Базовый сотрудник. Владеет контрактом и авансом, ссылается на отдел.
 // Отдел, в свою очередь, владеет сотрудником.
 class Worker {
