@@ -11,7 +11,8 @@ constexpr int kIncidentBonusThreshold = 1;
 constexpr const char* kNightShift = "night";
 }  // namespace
 
-SecurityGuard::SecurityGuard(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
+SecurityGuard::SecurityGuard(int id, std::string fullName,
+                             std::unique_ptr<EmploymentContract> contract,
                              std::unique_ptr<AdvancePayment> advance, std::string shiftType)
     : Specialist(id, std::move(fullName), std::move(contract), std::move(advance)),
       shiftType_(std::move(shiftType)) {

@@ -3,8 +3,8 @@
 #include "exceptions/invalid_contract_exception.hpp"
 #include "exceptions/invalid_input_exception.hpp"
 
-EmploymentContract::EmploymentContract(std::string contractNumber, std::string position, Date hireDate,
-                                       double monthlyRate, bool withProbation)
+EmploymentContract::EmploymentContract(std::string contractNumber, std::string position,
+                                       Date hireDate, double monthlyRate, bool withProbation)
     : contractNumber_(std::move(contractNumber)),
       position_(std::move(position)),
       hireDate_(hireDate),

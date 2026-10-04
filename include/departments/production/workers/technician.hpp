@@ -11,7 +11,8 @@
 class Technician : public Specialist {
 public:
     Technician(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
-               std::unique_ptr<AdvancePayment> advance, std::vector<std::string> equipmentCertifications);
+               std::unique_ptr<AdvancePayment> advance,
+               std::vector<std::string> equipmentCertifications);
 
     std::string getRole() const override;
     std::string getSpecialization() const override;

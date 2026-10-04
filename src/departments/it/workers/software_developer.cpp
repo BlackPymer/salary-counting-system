@@ -7,7 +7,8 @@ constexpr double kReviewBonus = 0.08;
 
 SoftwareDeveloper::SoftwareDeveloper(int id, std::string fullName,
                                      std::unique_ptr<EmploymentContract> contract,
-                                     std::unique_ptr<AdvancePayment> advance, std::string primaryLanguage)
+                                     std::unique_ptr<AdvancePayment> advance,
+                                     std::string primaryLanguage)
     : Specialist(id, std::move(fullName), std::move(contract), std::move(advance)),
       primaryLanguage_(std::move(primaryLanguage)) {}
 

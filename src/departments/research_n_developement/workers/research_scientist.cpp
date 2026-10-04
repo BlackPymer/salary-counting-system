@@ -12,7 +12,8 @@ constexpr int kPublicationThreshold = 1;
 
 ResearchScientist::ResearchScientist(int id, std::string fullName,
                                      std::unique_ptr<EmploymentContract> contract,
-                                     std::unique_ptr<AdvancePayment> advance, std::string researchArea)
+                                     std::unique_ptr<AdvancePayment> advance,
+                                     std::string researchArea)
     : Specialist(id, std::move(fullName), std::move(contract), std::move(advance)),
       researchArea_(std::move(researchArea)) {
     if (researchArea_.empty()) {
@@ -53,8 +54,7 @@ bool ResearchScientist::hasPublicationRecord() const {
 }
 
 double ResearchScientist::calculateRoleBonus() const {
-    const double projectBonus =
-        projectsCompleted_ >= kProjectThreshold ? kProjectBonus : 0.0;
+    const double projectBonus = projectsCompleted_ >= kProjectThreshold ? kProjectBonus : 0.0;
     const double publicationBonus = hasPublicationRecord() ? kPublicationBonus : 0.0;
     return getBaseRate() * (kBaseResearchRate + projectBonus + publicationBonus);
 }

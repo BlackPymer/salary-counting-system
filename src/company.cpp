@@ -51,9 +51,10 @@ Worker* Company::appointRecruiter(const std::string& fullName, double monthlyRat
     // Условия определяет сама компания — рекрутер ещё не существует,
     // готовить их некому.
     auto contract = std::make_unique<EmploymentContract>(
-        Recruiter::contractNumberFor(nextWorkerId_), WorkerFactory::positionFor(WorkerType::Recruiter),
-        today(), monthlyRate);
-    auto advance = std::make_unique<AdvancePayment>(monthlyRate * Recruiter::kMaxAdvanceRate, today());
+        Recruiter::contractNumberFor(nextWorkerId_),
+        WorkerFactory::positionFor(WorkerType::Recruiter), today(), monthlyRate);
+    auto advance =
+        std::make_unique<AdvancePayment>(monthlyRate * Recruiter::kMaxAdvanceRate, today());
 
     std::unique_ptr<Worker> worker = WorkerFactory::create(
         nextWorkerId_, fullName, WorkerType::Recruiter, std::move(contract), std::move(advance));
@@ -89,8 +90,8 @@ Worker* Company::hireWorker(const std::string& departmentName, const std::string
         recruiter->createContract(nextWorkerId_, position, monthlyRate);
     std::unique_ptr<AdvancePayment> advance =
         recruiter->createAdvance(monthlyRate * Recruiter::kMaxAdvanceRate);
-    std::unique_ptr<Worker> worker =
-        WorkerFactory::create(nextWorkerId_, fullName, type, std::move(contract), std::move(advance));
+    std::unique_ptr<Worker> worker = WorkerFactory::create(nextWorkerId_, fullName, type,
+                                                           std::move(contract), std::move(advance));
 
     const int workerId = nextWorkerId_;
     recruiter->registerCandidate();
@@ -106,6 +107,13 @@ std::unique_ptr<Worker> Company::terminateWorker(const std::string& departmentNa
     if (department == nullptr) {
         throw DepartmentNotFoundException(departmentName);
     }
+    Worker* worker = department->findWorker(workerId);
+    if (worker == nullptr) {
+        throw EmployeeNotFoundException(workerId, departmentName);
+    }
+    // Контракт расторгается до изъятия из отдела: уволенный сотрудник не
+    // должен оставаться с действующим контрактом и правовой активностью.
+    worker->getContract().terminate(today());
     return department->removeWorker(workerId);
 }
 
@@ -174,4 +182,3 @@ Worker* Company::findWorkerIn(const std::string& departmentName, int workerId) c
     }
     return worker;
 }
-

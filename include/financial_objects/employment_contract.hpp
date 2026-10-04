@@ -10,8 +10,8 @@
 class EmploymentContract {
 public:
     EmploymentContract() = default;
-    EmploymentContract(std::string contractNumber, std::string position, Date hireDate, double monthlyRate,
-                       bool withProbation = true);
+    EmploymentContract(std::string contractNumber, std::string position, Date hireDate,
+                       double monthlyRate, bool withProbation = true);
     ~EmploymentContract() = default;
 
     EmploymentContract(const EmploymentContract&) = delete;

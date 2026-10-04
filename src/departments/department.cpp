@@ -24,10 +24,9 @@ void Department::addWorker(std::unique_ptr<Worker> worker) {
 }
 
 std::unique_ptr<Worker> Department::removeWorker(int workerId) {
-    const auto it = std::find_if(workers_.begin(), workers_.end(),
-                                 [workerId](const std::unique_ptr<Worker>& worker) {
-                                     return worker->getId() == workerId;
-                                 });
+    const auto it = std::find_if(
+        workers_.begin(), workers_.end(),
+        [workerId](const std::unique_ptr<Worker>& worker) { return worker->getId() == workerId; });
     if (it == workers_.end()) {
         throw EmployeeNotFoundException(workerId, name_);
     }
@@ -38,10 +37,9 @@ std::unique_ptr<Worker> Department::removeWorker(int workerId) {
 }
 
 Worker* Department::findWorker(int workerId) const {
-    const auto it = std::find_if(workers_.begin(), workers_.end(),
-                                 [workerId](const std::unique_ptr<Worker>& worker) {
-                                     return worker->getId() == workerId;
-                                 });
+    const auto it = std::find_if(
+        workers_.begin(), workers_.end(),
+        [workerId](const std::unique_ptr<Worker>& worker) { return worker->getId() == workerId; });
     return it == workers_.end() ? nullptr : it->get();
 }
 

@@ -15,7 +15,8 @@ PayrollAccountant::PayrollAccountant(int id, std::string fullName,
                  std::move(certificationLevel)),
       employeesUnderService_(employeesUnderService) {
     if (employeesUnderService_ < 0) {
-        throw InvalidInputException("Количество обслуживаемых сотрудников не может быть отрицательным");
+        throw InvalidInputException(
+            "Количество обслуживаемых сотрудников не может быть отрицательным");
     }
 }
 

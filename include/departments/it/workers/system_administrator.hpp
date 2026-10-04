@@ -10,7 +10,7 @@
 class SystemAdministrator : public Specialist {
 public:
     SystemAdministrator(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
-                       std::unique_ptr<AdvancePayment> advance, int serversMaintained);
+                        std::unique_ptr<AdvancePayment> advance, int serversMaintained);
 
     std::string getRole() const override;
     std::string getSpecialization() const override;

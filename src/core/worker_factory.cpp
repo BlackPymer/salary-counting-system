@@ -53,14 +53,14 @@ std::unique_ptr<Worker> WorkerFactory::create(int id, const std::string& fullNam
 
     switch (type) {
         case WorkerType::Accountant:
-            return std::make_unique<Accountant>(id, fullName, std::move(contract), std::move(advance),
-                                                "junior");
+            return std::make_unique<Accountant>(id, fullName, std::move(contract),
+                                                std::move(advance), "junior");
         case WorkerType::PayrollAccountant:
-            return std::make_unique<PayrollAccountant>(
-                id, fullName, std::move(contract), std::move(advance), "junior", 0);
+            return std::make_unique<PayrollAccountant>(id, fullName, std::move(contract),
+                                                       std::move(advance), "junior", 0);
         case WorkerType::Administrator:
             return std::make_unique<Administrator>(id, fullName, std::move(contract),
-                                                  std::move(advance), "B-1");
+                                                   std::move(advance), "B-1");
         case WorkerType::CustomerSupportAgent:
             return std::make_unique<CustomerSupportAgent>(id, fullName, std::move(contract),
                                                           std::move(advance), "chat");
@@ -77,7 +77,8 @@ std::unique_ptr<Worker> WorkerFactory::create(int id, const std::string& fullNam
             return std::make_unique<Lawyer>(id, fullName, std::move(contract), std::move(advance),
                                             "pending");
         case WorkerType::Marketer:
-            return std::make_unique<Marketer>(id, fullName, std::move(contract), std::move(advance));
+            return std::make_unique<Marketer>(id, fullName, std::move(contract),
+                                              std::move(advance));
         case WorkerType::Technician:
             return std::make_unique<Technician>(id, fullName, std::move(contract),
                                                 std::move(advance),
@@ -87,7 +88,7 @@ std::unique_ptr<Worker> WorkerFactory::create(int id, const std::string& fullNam
                                                        std::move(advance), "general");
         case WorkerType::SecurityGuard:
             return std::make_unique<SecurityGuard>(id, fullName, std::move(contract),
-                                                  std::move(advance), "day");
+                                                   std::move(advance), "day");
     }
     throw InvalidInputException("Неизвестный тип сотрудника");
 }

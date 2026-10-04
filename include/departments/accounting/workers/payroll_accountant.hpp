@@ -10,8 +10,8 @@
 class PayrollAccountant : public Accountant {
 public:
     PayrollAccountant(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
-                       std::unique_ptr<AdvancePayment> advance, std::string certificationLevel,
-                       int employeesUnderService);
+                      std::unique_ptr<AdvancePayment> advance, std::string certificationLevel,
+                      int employeesUnderService);
 
     std::string getRole() const override;
 

@@ -27,5 +27,6 @@ bool Accountant::isSeniorCertified() const {
 }
 
 double Accountant::calculateRoleBonus() const {
-    return getBaseRate() * (kBaseSpecialistRate + (isSeniorCertified() ? kSeniorCertifiedBonus : 0.0));
+    return getBaseRate() *
+           (kBaseSpecialistRate + (isSeniorCertified() ? kSeniorCertifiedBonus : 0.0));
 }

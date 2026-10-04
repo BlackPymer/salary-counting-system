@@ -1,0 +1,32 @@
+# Стиль кода фиксируется в файле, поэтому clang-format в CI проверяет
+# ровно то же форматирование, к которому привык разработчик.
+# Открывающая скобка всегда на строке объявления — ни одного исключения
+# в проекте, поэтому BreakBeforeBraces: Attach.
+BasedOnStyle: Google
+
+Language: Cpp
+Standard: c++20
+
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+
+ColumnLimit: 100
+BreakBeforeBraces: Attach
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: false
+
+# Указатели и ссылки привязаны к типу: Worker*, const Date& from.
+PointerAlignment: Left
+DerivePointerAlignment: false
+ReferenceAlignment: Left
+
+SpaceBeforeParens: ControlStatements
+IndentCaseLabels: true
+
+SortIncludes: CaseSensitive
+IncludeBlocks: Preserve
+
+AccessModifierOffset: -4

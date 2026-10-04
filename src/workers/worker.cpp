@@ -92,7 +92,8 @@ void Worker::registerOvertime(double hours) {
         throw InvalidInputException("Количество сверхурочных часов должно быть положительным");
     }
     if (overtimeHours_ + hours > kOvertimeLimitHours) {
-        throw OvertimeLimitExceededException(fullName_, overtimeHours_ + hours, kOvertimeLimitHours);
+        throw OvertimeLimitExceededException(fullName_, overtimeHours_ + hours,
+                                             kOvertimeLimitHours);
     }
     overtimeHours_ += hours;
 }

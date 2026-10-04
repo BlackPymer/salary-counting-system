@@ -5,7 +5,8 @@ constexpr double kOfficeAdminBonus = 0.05;
 constexpr int kBonusTaskThreshold = 10;
 }  // namespace
 
-Administrator::Administrator(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
+Administrator::Administrator(int id, std::string fullName,
+                             std::unique_ptr<EmploymentContract> contract,
                              std::unique_ptr<AdvancePayment> advance, std::string officeBuilding)
     : Manager(id, std::move(fullName), std::move(contract), std::move(advance)),
       officeBuilding_(std::move(officeBuilding)) {}

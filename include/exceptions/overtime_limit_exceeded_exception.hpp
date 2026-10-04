@@ -6,7 +6,8 @@
 
 class OvertimeLimitExceededException : public BaseException {
 public:
-    OvertimeLimitExceededException(const std::string& fullName, double requestedHours, double limitHours);
+    OvertimeLimitExceededException(const std::string& fullName, double requestedHours,
+                                   double limitHours);
 
     const std::string& getFullName() const;
     double getRequestedHours() const;

@@ -49,9 +49,8 @@ double Recruiter::getClosingRate() const {
 }
 
 double Recruiter::calculateRoleBonus() const {
-    return getBaseRate() * (kBaseRecruiterRate + (getClosingRate() >= kTargetClosingRate
-                                                      ? kHighClosingRateBonus
-                                                      : 0.0));
+    return getBaseRate() * (kBaseRecruiterRate +
+                            (getClosingRate() >= kTargetClosingRate ? kHighClosingRateBonus : 0.0));
 }
 
 void Recruiter::validateTerms(double monthlyRate, double advanceAmount) const {
@@ -62,13 +61,15 @@ void Recruiter::validateTerms(double monthlyRate, double advanceAmount) const {
         throw InvalidInputException("Аванс должен быть выплачен при найме");
     }
     if (advanceAmount > monthlyRate * kMaxAdvanceRate) {
-        throw InvalidInputException("Аванс превышает " + std::to_string(static_cast<int>(kMaxAdvanceRate * 100)) +
+        throw InvalidInputException("Аванс превышает " +
+                                    std::to_string(static_cast<int>(kMaxAdvanceRate * 100)) +
                                     "% месячной ставки");
     }
 }
 
-std::unique_ptr<EmploymentContract> Recruiter::createContract(int workerId, const std::string& position,
-                                                             double monthlyRate) const {
+std::unique_ptr<EmploymentContract> Recruiter::createContract(int workerId,
+                                                              const std::string& position,
+                                                              double monthlyRate) const {
     validateTerms(monthlyRate, monthlyRate * kMaxAdvanceRate);
     return std::make_unique<EmploymentContract>(contractNumberFor(workerId), position, today(),
                                                 monthlyRate);
