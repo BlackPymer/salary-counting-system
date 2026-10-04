@@ -28,19 +28,24 @@ jobs:
           cmake --version
           g++ --version
 
+      # -D — это опция НАСТРОЙКИ, а не сборки. Передавать её в
+      # `cmake --build` бессмысленно: она попадёт в make, а не в компилятор.
+      # Поэтому -Werror и --coverage задаются здесь, на шаге настройки.
       - name: Настроить сборку
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+        run: >
+          cmake -S . -B build
+          -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_CXX_FLAGS="-Werror --coverage"
+          -DCMAKE_EXE_LINKER_FLAGS="--coverage"
 
-      # GoogleTest подтягивается сам через FetchContent, отдельно ставить
-      # его в систему не нужно. -Werror превращает любое предупреждение
-      # компилятора в ошибку: чистота кода не должна ломаться молча.
       - name: Собрать
-        run: cmake --build build --parallel -DCMAKE_CXX_FLAGS="-Werror"
+        run: cmake --build build --parallel
 
       - name: Прогнать тесты
         run: ctest --test-dir build --output-on-failure
 
-      # Отчёт о покрытии — чтобы видеть, какая часть кода проверяется.
+      # Отчёт о покрытии виден только если сборка была с --coverage:
+      # без этого gcovr находит ноль файлов .gcda и рисует пустые 0%.
       - name: Собрать отчёт о покрытии
         working-directory: build
         run: |
@@ -56,14 +61,20 @@ jobs:
 
       - run: sudo apt-get update && sudo apt-get install -y cmake g++
 
-      - run: cmake -S . -B build-strict -DCMAKE_BUILD_TYPE=Debug -DSALARY_ENABLE_TESTS=OFF
+      # Флаги предупреждений — тоже опция настройки, не сборки.
+      - run: >
+          cmake -S . -B build-strict
+          -DCMAKE_BUILD_TYPE=Debug
+          -DSALARY_ENABLE_TESTS=OFF
+          -DCMAKE_CXX_FLAGS="-Werror -Wall -Wextra -Wpedantic -Wshadow
+          -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused
+          -Woverloaded-virtual -Wnull-dereference -Wdouble-promotion
+          -Wformat=2 -Wimplicit-fallthrough"
 
       # Каждое предупреждение — провал. Отдельно от тестов: тесты могут
       # проходить, а в коде при этом остаться мусор из шаблонов и знаков.
       - name: Собрать с максимальными предупреждениями
-        run: |
-          cmake --build build-strict --parallel \
-            -DCMAKE_CXX_FLAGS="-Werror -Wall -Wextra -Wpedantic -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wnull-dereference -Wdouble-promotion -Wformat=2 -Wimplicit-fallthrough"
+        run: cmake --build build-strict --parallel
 
   code-quality:
     name: Формат и поиск мерзости
