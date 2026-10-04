@@ -36,6 +36,16 @@ void Salary::applyDeduction(double amount) {
     net_ -= amount;
 }
 
+void Salary::applyRepayment(double amount) {
+    if (amount < 0.0) {
+        throw InvalidInputException("Сумма зачёта не может быть отрицательной");
+    }
+    if (amount > net_) {
+        throw InvalidInputException("Зачёт превышает сумму на руки");
+    }
+    net_ -= amount;
+}
+
 void Salary::applyTax(double taxAmount) {
     if (taxAmount < 0.0) {
         throw InvalidInputException("Налог не может быть отрицательным");

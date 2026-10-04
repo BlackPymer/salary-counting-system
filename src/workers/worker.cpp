@@ -46,7 +46,7 @@ Salary Worker::calculateSalary() const {
     Salary salary(base + calculateRoleBonus(), 0.0, base + calculateRoleBonus());
 
     if (advance_ != nullptr) {
-        salary.applyDeduction(advance_->applyDeduction(salary.getNet()));
+        salary.applyRepayment(advance_->applyDeduction(salary.getNet()));
     }
     return salary;
 }
