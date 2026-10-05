@@ -124,6 +124,9 @@ void Company::registerOvertime(const std::string& departmentName, int workerId, 
 void Company::endPeriod() {
     for (const std::unique_ptr<Department>& department : departments_) {
         for (Worker* worker : department->getWorkers()) {
+            const double net = worker->calculateSalary().getNet();
+            worker->repayAdvance(net);
+            worker->resetAdvance();
             worker->resetPeriod();
         }
     }

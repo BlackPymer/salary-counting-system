@@ -83,10 +83,10 @@ protected:
     virtual double calculateRoleBonus() const;
 
 private:
-    double computeBaseGross() const;
     double computeAbsenceAdjustment() const;
     double computeOvertimePay() const;
     double computeBonus() const;
+    double computeTax(double gross) const;
 
     int id_ = 0;
     std::string fullName_;

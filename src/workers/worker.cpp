@@ -44,13 +44,66 @@ bool Worker::isActive() const {
 }
 
 Salary Worker::calculateSalary() const {
-    const double base = getEffectiveRate();
-    Salary salary(base + calculateRoleBonus(), 0.0, base + calculateRoleBonus());
-
-    if (advance_ != nullptr) {
-        salary.applyRepayment(advance_->applyDeduction(salary.getNet()));
+    double gross = getBaseRate();
+    gross += computeAbsenceAdjustment();
+    if (isOnProbation()) {
+        gross *= 0.85;
     }
-    return salary;
+    gross += computeOvertimePay();
+    gross += computeBonus();
+    const double tax = computeTax(gross);
+    return Salary(gross, tax, gross - tax);
+}
+
+double Worker::repayAdvance(double availableAmount) {
+    if (advance_ == nullptr) {
+        return 0.0;
+    }
+    return advance_->applyDeduction(availableAmount);
+}
+
+void Worker::resetAdvance() {
+    if (advance_ != nullptr) {
+        advance_->applyDeduction(advance_->getRemaining());
+    }
+}
+
+double Worker::computeAbsenceAdjustment() const {
+    if (absences_.empty()) {
+        return 0.0;
+    }
+    const double dailyRate = getBaseRate() / 30.0;
+    double deduction = 0.0;
+    for (const std::unique_ptr<Absence>& absence : absences_) {
+        deduction += dailyRate * absence->getDays() * (1.0 - absence->getPayRate());
+    }
+    return -deduction;
+}
+
+double Worker::computeOvertimePay() const {
+    const double hourlyRate = getBaseRate() / 160.0;
+    return overtimeHours_ * hourlyRate;
+}
+
+double Worker::computeBonus() const {
+    return calculateRoleBonus();
+}
+
+double Worker::computeTax(double gross) const {
+    if (gross <= 200000.0) {
+        return gross * 0.13;
+    }
+    if (gross <= 400000.0) {
+        return 200000.0 * 0.13 + (gross - 200000.0) * 0.15;
+    }
+    if (gross <= 600000.0) {
+        return 200000.0 * 0.13 + 200000.0 * 0.15 + (gross - 400000.0) * 0.18;
+    }
+    if (gross <= 800000.0) {
+        return 200000.0 * 0.13 + 200000.0 * 0.15 + 200000.0 * 0.18 + (gross - 600000.0) * 0.20;
+    }
+    return 200000.0 * 0.13 + 200000.0 * 0.15 + 200000.0 * 0.18 + 200000.0 * 0.20 +
+           (gross - 800000.0) * 0.22;
 }
 
 std::string Worker::getRole() const {
