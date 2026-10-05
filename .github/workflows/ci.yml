@@ -77,9 +77,15 @@ jobs:
 
       - name: Проверить clang-format
         run: |
-          find src include tests -name '*.cpp' -o -name '*.hpp' | xargs clang-format --dry-run --Werror
+          find src include tests \( -name '*.cpp' -o -name '*.hpp' \) -print0 | xargs -0 -r clang-format --dry-run --Werror
 
       - name: Проверить отсутствие TODO и закомментированного кода
         run: |
-          ! grep -rn --include='*.cpp' --include='*.hpp' -E 'TODO|FIXME|XXX|HACK' src include tests
-          ! grep -rn --include='*.cpp' --include='*.hpp' -E '^\s*//\s*(if|for|while|return|int|double|std::)' src include tests
+          if grep -rn --include='*.cpp' --include='*.hpp' -E 'TODO|FIXME|XXX|HACK' src include tests; then
+            echo "Found forbidden comments"
+            exit 1
+          fi
+          if grep -rn --include='*.cpp' --include='*.hpp' -E '^\s*//\s*(if|for|while|return|int|double|std::)' src include tests; then
+            echo "Found commented-out code"
+            exit 1
+          fi

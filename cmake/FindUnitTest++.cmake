@@ -1,14 +1,13 @@
-find_path(UNITTEST++_INCLUDE_DIR UnitTest++/UnitTest++.h PATHS /usr/include)
-find_library(UNITTEST++_LIBRARY NAMES UnitTest++ PATHS /usr/lib/x86_64-linux-gnu)
+find_path(UNITTESTPP_INCLUDE_DIR NAMES UnitTest++/UnitTest++.h)
+find_library(UNITTESTPP_LIBRARY NAMES UnitTest++ libUnitTest++)
 
-if(UNITTEST++_INCLUDE_DIR AND UNITTEST++_LIBRARY)
-  if(NOT TARGET UnitTest++)
-    add_library(UnitTest++ UNKNOWN IMPORTED)
-    set_target_properties(UnitTest++ PROPERTIES
-      IMPORTED_LOCATION "${UNITTEST++_LIBRARY}"
-      INTERFACE_INCLUDE_DIRECTORIES "${UNITTEST++_INCLUDE_DIR}")
-  endif()
-  set(UnitTest++_FOUND TRUE)
-else()
-  set(UnitTest++_FOUND FALSE)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(UnitTest++
+  REQUIRED_VARS UNITTESTPP_LIBRARY UNITTESTPP_INCLUDE_DIR)
+
+if(UnitTest++_FOUND AND NOT TARGET UnitTest++)
+  add_library(UnitTest++ UNKNOWN IMPORTED)
+  set_target_properties(UnitTest++ PROPERTIES
+    IMPORTED_LOCATION "${UNITTESTPP_LIBRARY}"
+    INTERFACE_INCLUDE_DIRECTORIES "${UNITTESTPP_INCLUDE_DIR}")
 endif()
