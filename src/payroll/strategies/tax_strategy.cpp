@@ -1,6 +1,6 @@
 #include "payroll/strategies/tax_strategy.hpp"
 
-void TaxStrategy::apply(const CalculationContext& /*context*/, Salary& salary) const {
+void TaxStrategy::apply(const CalculationContext&, Salary& salary) const {
     const double gross = salary.getGross();
     if (gross <= 0.0) {
         return;

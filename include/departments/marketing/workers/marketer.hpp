@@ -6,7 +6,6 @@
 #include "financial_objects/employment_contract.hpp"
 #include "workers/specialist.hpp"
 
-// Маркетолог: надбавка за запущенные кампании и лиды.
 class Marketer : public Specialist {
 public:
     Marketer(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
@@ -19,7 +18,6 @@ public:
     int getLeadsGenerated() const;
     void launchCampaign(int leadsGenerated);
 
-    // Среднее число лидов на кампанию — эффективность работы.
     double getLeadsPerCampaign() const;
 
 protected:

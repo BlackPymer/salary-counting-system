@@ -6,7 +6,6 @@
 
 #include "workers/worker.hpp"
 
-// Отдел — владелец своих сотрудников. Компания владеет отделами.
 class Department {
 public:
     Department() = default;
@@ -18,8 +17,6 @@ public:
     Department(Department&&) = delete;
     Department& operator=(Department&&) = delete;
 
-    // Единственная точка входа сотрудника в компанию. Проверяет
-    // дубликаты и проставляет обратную ссылку на отдел.
     void addWorker(std::unique_ptr<Worker> worker);
 
     std::unique_ptr<Worker> removeWorker(int workerId);
@@ -28,7 +25,6 @@ public:
     std::vector<Worker*> getWorkers() const;
     std::size_t getWorkersCount() const;
 
-    // Сумма зарплат отдела за текущий период.
     double calculatePayroll() const;
 
     const std::string& getName() const;

@@ -6,7 +6,6 @@
 #include "financial_objects/employment_contract.hpp"
 #include "workers/specialist.hpp"
 
-// Оператор клиентской поддержки: надбавка зависит от скорости ответа.
 class CustomerSupportAgent : public Specialist {
 public:
     CustomerSupportAgent(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
@@ -20,7 +19,6 @@ public:
     int getAverageResponseMinutes() const;
     void resolveTicket(int responseMinutes);
 
-    // Быстрее нормативного ответа — доплата за качество.
     bool exceedsServiceStandard() const;
 
 protected:

@@ -5,8 +5,6 @@
 
 #include "absence.hpp"
 
-// Отпуск. Оплачиваемый и без сохранения з/п — один класс, различается
-// только ставка оплаты. Отгук — тоже Vacation с частичной ставкой.
 class Vacation : public Absence {
 public:
     Vacation(int days, bool isPaid);

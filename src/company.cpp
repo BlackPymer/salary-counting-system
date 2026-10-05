@@ -48,8 +48,6 @@ Worker* Company::appointRecruiter(const std::string& fullName, double monthlyRat
         throw DepartmentNotFoundException(HrDepartment::kName);
     }
 
-    // Условия определяет сама компания — рекрутер ещё не существует,
-    // готовить их некому.
     auto contract = std::make_unique<EmploymentContract>(
         Recruiter::contractNumberFor(nextWorkerId_),
         WorkerFactory::positionFor(WorkerType::Recruiter), today(), monthlyRate);
@@ -84,8 +82,6 @@ Worker* Company::hireWorker(const std::string& departmentName, const std::string
 
     const std::string position = WorkerFactory::positionFor(type);
 
-    // Условия найма готовит отдел кадров: контракт с испытательным сроком
-    // и аванс в пределах разрешённой доли ставки.
     std::unique_ptr<EmploymentContract> contract =
         recruiter->createContract(nextWorkerId_, position, monthlyRate);
     std::unique_ptr<AdvancePayment> advance =
@@ -111,8 +107,7 @@ std::unique_ptr<Worker> Company::terminateWorker(const std::string& departmentNa
     if (worker == nullptr) {
         throw EmployeeNotFoundException(workerId, departmentName);
     }
-    // Контракт расторгается до изъятия из отдела: уволенный сотрудник не
-    // должен оставаться с действующим контрактом и правовой активностью.
+
     worker->getContract().terminate(today());
     return department->removeWorker(workerId);
 }

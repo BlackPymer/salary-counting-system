@@ -6,7 +6,6 @@
 #include "core/date.hpp"
 #include "probation_period.hpp"
 
-// Трудовой договор: выдаётся при найме, владеет испытательным сроком.
 class EmploymentContract {
 public:
     EmploymentContract() = default;
@@ -28,7 +27,6 @@ public:
 
     double getMonthlyRate() const;
 
-    // Ставка на указанную дату: с учётом скидки 15%, пока идёт испытательный.
     double getEffectiveRateOn(const Date& date) const;
 
     const std::string& getContractNumber() const;

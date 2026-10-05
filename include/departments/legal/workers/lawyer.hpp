@@ -6,7 +6,6 @@
 #include "financial_objects/employment_contract.hpp"
 #include "workers/specialist.hpp"
 
-// Юрист: надбавка за количество завершённых дел.
 class Lawyer : public Specialist {
 public:
     Lawyer(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
@@ -19,7 +18,6 @@ public:
     int getCasesHandled() const;
     void handleCase();
 
-    // Работает ли юрист с контрактами сотрудников.
     bool reviewsEmploymentContracts() const;
 
 protected:

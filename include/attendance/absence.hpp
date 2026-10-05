@@ -3,10 +3,6 @@
 #include <memory>
 #include <string>
 
-// Отсутствие сотрудника. Учёт времени не ведётся: симуляция сообщает
-// напрямую, сколько дней сотрудник отсутствовал и по какой причине.
-// Отпуск, отгул и отсутствие без сохранения з/п различаются только ставкой
-// оплаты, поэтому это один класс с настраиваемой ставкой.
 class Absence {
 public:
     static constexpr double kFullPay = 1.0;
@@ -21,12 +17,10 @@ public:
     Absence(Absence&&) = delete;
     Absence& operator=(Absence&&) = delete;
 
-    // Отгул: оплачивается частично.
     static std::unique_ptr<Absence> dayOff(int days);
 
     int getDays() const;
 
-    // Доля выплаты от номинальной ставки за один день.
     virtual double getPayRate() const;
 
     virtual std::string getTypeName() const;

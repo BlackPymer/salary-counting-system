@@ -12,7 +12,6 @@
 
 class Department;
 
-// Тип сотрудника. Определяет, кого именно создаст фабрика при найме.
 enum class WorkerType {
     Accountant,
     PayrollAccountant,
@@ -28,11 +27,8 @@ enum class WorkerType {
     SecurityGuard,
 };
 
-// Базовый сотрудник. Владеет контрактом и авансом, ссылается на отдел.
-// Отдел, в свою очередь, владеет сотрудником.
 class Worker {
 public:
-    // Норматив сверхурочных за расчётный период.
     static constexpr double kOvertimeLimitHours = 80.0;
 
     Worker() = default;
@@ -56,18 +52,18 @@ public:
     bool isOnProbation() const;
     bool isActive() const;
 
-    // Базовая зарплата с учётом испытательного срока и зачёта аванса.
-    // Налог на этом шаге не удерживается — придёт вместе с payroll.
     virtual Salary calculateSalary() const;
+
+    double repayAdvance(double availableAmount);
+
+    void resetAdvance();
 
     virtual std::string getRole() const;
 
-    // Факты, сообщённые симуляцией: сколько дней отсутствовал и почему.
     void addAbsence(std::unique_ptr<Absence> absence);
     const std::vector<std::unique_ptr<Absence>>& getAbsences() const;
     int getTotalAbsentDays() const;
 
-    // Средняя ставка оплаты по всем отсутствиям за период.
     double getAveragePayRate() const;
 
     void registerOvertime(double hours);
@@ -84,10 +80,14 @@ public:
     const AdvancePayment& getAdvance() const;
 
 protected:
-    // Надбавка за должность; переопределяется в Specialist и Manager.
     virtual double calculateRoleBonus() const;
 
 private:
+    double computeBaseGross() const;
+    double computeAbsenceAdjustment() const;
+    double computeOvertimePay() const;
+    double computeBonus() const;
+
     int id_ = 0;
     std::string fullName_;
     std::unique_ptr<EmploymentContract> contract_;

@@ -4,7 +4,6 @@
 
 #include "worker.hpp"
 
-// Специалист: надбавка за специализацию.
 class Specialist : public Worker {
 public:
     using Worker::Worker;

@@ -11,7 +11,7 @@
 
 namespace {
 constexpr double kTolerance = 0.001;
-}  // namespace
+}
 
 TEST(TaxStrategyTest_ProgressiveScale) {
     TaxStrategy tax;

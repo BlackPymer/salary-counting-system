@@ -7,7 +7,7 @@
 
 namespace {
 constexpr double kTolerance = 0.001;
-}  // namespace
+}
 
 TEST(CalculationContextTest_BasicProperties) {
     auto contract = makeContract(100000.0, "Разработчик");

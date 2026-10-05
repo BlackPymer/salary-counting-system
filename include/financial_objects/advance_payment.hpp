@@ -2,8 +2,6 @@
 
 #include "core/date.hpp"
 
-// Аванс, выдаваемый при найме. Долга не возникает: списание зарплатой
-// ограничено остатком аванса и суммой на руки.
 class AdvancePayment {
 public:
     AdvancePayment() = default;
@@ -15,8 +13,6 @@ public:
     bool isFullyRepaid() const;
     Date getIssueDate() const;
 
-    // Списывает не больше остатка аванса и не больше доступной суммы.
-    // Возвращает фактически списанную сумму.
     double applyDeduction(double availableAmount);
 
 private:

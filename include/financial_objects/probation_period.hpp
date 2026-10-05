@@ -2,7 +2,6 @@
 
 #include "core/date.hpp"
 
-// Испытательный срок при найме: ставка ниже на 15%.
 class ProbationPeriod {
 public:
     static constexpr int DEFAULT_DURATION_DAYS = 30;
@@ -17,7 +16,6 @@ public:
     int getDurationDays() const;
     double getDiscountRate() const;
 
-    // Ставка с учётом скидки, пока сотрудник на испытательном.
     double calculateRate(double baseRate) const;
 
 private:

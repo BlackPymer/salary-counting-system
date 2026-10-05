@@ -6,7 +6,6 @@
 #include "financial_objects/employment_contract.hpp"
 #include "workers/specialist.hpp"
 
-// Научный сотрудник: надбавка за завершённые проекты и публикации.
 class ResearchScientist : public Specialist {
 public:
     ResearchScientist(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,

@@ -6,7 +6,6 @@
 #include "financial_objects/employment_contract.hpp"
 #include "workers/specialist.hpp"
 
-// Системный администратор: надбавка за uptime обслуживаемых серверов.
 class SystemAdministrator : public Specialist {
 public:
     SystemAdministrator(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
@@ -20,7 +19,6 @@ public:
     void recordUptime(double percent);
     void addServer();
 
-    // Простой выше порога считается инцидентом и снижает надбавку.
     bool hasCriticalDowntime() const;
 
 protected:

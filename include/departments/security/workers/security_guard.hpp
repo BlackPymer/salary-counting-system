@@ -6,7 +6,6 @@
 #include "financial_objects/employment_contract.hpp"
 #include "workers/specialist.hpp"
 
-// Охранник: надбавка за отработанные смены и предотвращённые инциденты.
 class SecurityGuard : public Specialist {
 public:
     SecurityGuard(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
@@ -21,7 +20,6 @@ public:
     void completeShift();
     void preventIncident();
 
-    // Ночная смена оплачивается повышенно.
     bool isNightShift() const;
 
 protected:

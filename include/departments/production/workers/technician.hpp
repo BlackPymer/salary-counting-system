@@ -7,7 +7,6 @@
 #include "financial_objects/employment_contract.hpp"
 #include "workers/specialist.hpp"
 
-// Техник по оборудованию: надбавка за сертификации и выработку.
 class Technician : public Specialist {
 public:
     Technician(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,

@@ -6,7 +6,6 @@
 #include "financial_objects/employment_contract.hpp"
 #include "workers/manager.hpp"
 
-// Администратор офиса: руководитель хозяйственной службы.
 class Administrator : public Manager {
 public:
     Administrator(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,

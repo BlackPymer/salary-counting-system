@@ -6,7 +6,6 @@
 #include "financial_objects/employment_contract.hpp"
 #include "workers/specialist.hpp"
 
-// Бухгалтер: надбавка растёт с уровнем сертификации.
 class Accountant : public Specialist {
 public:
     Accountant(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,

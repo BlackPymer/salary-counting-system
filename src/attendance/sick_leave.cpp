@@ -1,8 +1,7 @@
 #include "attendance/sick_leave.hpp"
 
 namespace {
-// Выплата по больничному зависит от стажа: меньше 3 лет — 60%,
-// до 5 лет — 80%, 5 лет и больше — 100%.
+
 constexpr int kJuniorThresholdYears = 3;
 constexpr int kMiddleThresholdYears = 5;
 constexpr double kJuniorPayRate = 0.6;

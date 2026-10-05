@@ -6,7 +6,6 @@
 #include "financial_objects/employment_contract.hpp"
 #include "workers/specialist.hpp"
 
-// Разработчик ПО: надбавка за закрытые задачи.
 class SoftwareDeveloper : public Specialist {
 public:
     SoftwareDeveloper(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
@@ -21,7 +20,6 @@ public:
     void completeTask();
     void reviewCode();
 
-    // Одновременно закрывает задачи и проводит ревью — признак сильного сотрудника.
     bool isFullCycle() const;
 
 protected:

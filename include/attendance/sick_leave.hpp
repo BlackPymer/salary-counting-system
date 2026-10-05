@@ -5,8 +5,6 @@
 
 #include "absence.hpp"
 
-// Больничный. Выплата зависит от стажа, поэтому это отдельный класс,
-// а не Vacation со ставкой.
 class SickLeave : public Absence {
 public:
     SickLeave(int days, int seniorityYears);
