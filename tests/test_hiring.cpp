@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <UnitTest++/UnitTest++.h>
 
 #include <algorithm>
 #include <memory>
@@ -24,8 +24,6 @@
 
 namespace {
 
-// Company владеет отделами через unique_ptr, поэтому копировать и
-// возвращавать её по значению нельзя — готовим компанию на месте.
 void populateReadyCompany(Company& company) {
     company.addDepartment(std::make_unique<HrDepartment>());
     company.addDepartment(std::make_unique<ItDepartment>());
@@ -37,40 +35,40 @@ constexpr double kDeveloperRate = 160000.0;
 
 }  // namespace
 
-TEST(RecruiterTest, ContractNumberFollowsSingleFormat) {
-    EXPECT_EQ(Recruiter::contractNumberFor(7), "T-7");
-    EXPECT_EQ(Recruiter::contractNumberFor(1), "T-1");
-    EXPECT_EQ(Recruiter::contractNumberFor(1234), "T-1234");
+TEST(RecruiterTest_ContractNumberFollowsSingleFormat) {
+    CHECK_EQUAL("T-7", Recruiter::contractNumberFor(7));
+    CHECK_EQUAL("T-1", Recruiter::contractNumberFor(1));
+    CHECK_EQUAL("T-1234", Recruiter::contractNumberFor(1234));
 }
 
-TEST(RecruiterTest, ValidatesTermsAgainstAdvanceLimit) {
+TEST(RecruiterTest_ValidatesTermsAgainstAdvanceLimit) {
     Recruiter recruiter(1, "Смирнова О.О.", makeContract(), makeAdvance());
 
-    EXPECT_NO_THROW(recruiter.validateTerms(100000.0, 15000.0));  // ровно 15%
-    EXPECT_NO_THROW(recruiter.validateTerms(100000.0, 5000.0));
-    EXPECT_THROW(recruiter.validateTerms(100000.0, 15001.0), InvalidInputException);
-    EXPECT_THROW(recruiter.validateTerms(100000.0, 0.0), InvalidInputException);
-    EXPECT_THROW(recruiter.validateTerms(0.0, 1000.0), InvalidInputException);
+    recruiter.validateTerms(100000.0, 15000.0);
+    recruiter.validateTerms(100000.0, 5000.0);
+    CHECK_THROW(recruiter.validateTerms(100000.0, 15001.0), InvalidInputException);
+    CHECK_THROW(recruiter.validateTerms(100000.0, 0.0), InvalidInputException);
+    CHECK_THROW(recruiter.validateTerms(0.0, 1000.0), InvalidInputException);
 }
 
-TEST(RecruiterTest, TracksVacancyPipeline) {
+TEST(RecruiterTest_TracksVacancyPipeline) {
     Recruiter recruiter(1, "Смирнова О.О.", makeContract(), makeAdvance());
-    EXPECT_EQ(recruiter.getVacanciesClosed(), 0);
-    EXPECT_EQ(recruiter.getCandidatesInProcess(), 0);
-    EXPECT_DOUBLE_EQ(recruiter.getClosingRate(), 0.0);
+    CHECK_EQUAL(0, recruiter.getVacanciesClosed());
+    CHECK_EQUAL(0, recruiter.getCandidatesInProcess());
+    CHECK_CLOSE(0.0, recruiter.getClosingRate(), 0.001);
 
     recruiter.registerCandidate();
     recruiter.registerCandidate();
-    EXPECT_EQ(recruiter.getCandidatesInProcess(), 2);
-    EXPECT_DOUBLE_EQ(recruiter.getClosingRate(), 0.0);
+    CHECK_EQUAL(2, recruiter.getCandidatesInProcess());
+    CHECK_CLOSE(0.0, recruiter.getClosingRate(), 0.001);
 
     recruiter.closeVacancy();
-    EXPECT_EQ(recruiter.getVacanciesClosed(), 1);
-    EXPECT_EQ(recruiter.getCandidatesInProcess(), 1);  // один кандидат закрыт
-    EXPECT_DOUBLE_EQ(recruiter.getClosingRate(), 0.5);
+    CHECK_EQUAL(1, recruiter.getVacanciesClosed());
+    CHECK_EQUAL(1, recruiter.getCandidatesInProcess());
+    CHECK_CLOSE(0.5, recruiter.getClosingRate(), 0.001);
 }
 
-TEST(WorkerFactoryTest, CreatesEveryRoleWithCorrectPosition) {
+TEST(WorkerFactoryTest_CreatesEveryRoleWithCorrectPosition) {
     const std::vector<WorkerType> types{WorkerType::Accountant,
                                         WorkerType::PayrollAccountant,
                                         WorkerType::Administrator,
@@ -88,47 +86,47 @@ TEST(WorkerFactoryTest, CreatesEveryRoleWithCorrectPosition) {
     for (WorkerType type : types) {
         std::unique_ptr<Worker> worker =
             WorkerFactory::create(1, "Тестовый", type, makeContract(), makeAdvance());
-        ASSERT_NE(worker, nullptr) << "фабрика не создала " << WorkerFactory::positionFor(type);
-        EXPECT_FALSE(worker->getRole().empty());
-        EXPECT_FALSE(worker->getPosition().empty());
+        CHECK(worker != nullptr);
+        CHECK(!worker->getRole().empty());
+        CHECK(!worker->getPosition().empty());
         roles.push_back(worker->getRole());
     }
 
-    EXPECT_EQ(roles.size(), 12u);
+    CHECK_EQUAL(12u, roles.size());
     std::sort(roles.begin(), roles.end());
-    EXPECT_EQ(std::adjacent_find(roles.begin(), roles.end()), roles.end());
+    CHECK(std::adjacent_find(roles.begin(), roles.end()) == roles.end());
 }
 
-TEST(WorkerFactoryTest, RejectsMissingTermsOfEmployment) {
-    EXPECT_THROW(
+TEST(WorkerFactoryTest_RejectsMissingTermsOfEmployment) {
+    CHECK_THROW(
         WorkerFactory::create(1, "Без контракта", WorkerType::Accountant, nullptr, makeAdvance()),
         InvalidInputException);
-    EXPECT_THROW(
+    CHECK_THROW(
         WorkerFactory::create(1, "Без аванса", WorkerType::Accountant, makeContract(), nullptr),
         InvalidInputException);
 }
 
-TEST(CompanyTest, RejectsEmptyNameAndNullDepartment) {
-    EXPECT_THROW(Company(""), InvalidInputException);
-    EXPECT_THROW(Company("Acme").addDepartment(nullptr), InvalidInputException);
+TEST(CompanyTest_RejectsEmptyNameAndNullDepartment) {
+    CHECK_THROW(Company(""), InvalidInputException);
+    Company c("Acme");
+    CHECK_THROW(c.addDepartment(nullptr), InvalidInputException);
 }
 
-TEST(CompanyTest, AppointRecruiterBootstrapsHiring) {
+TEST(CompanyTest_AppointRecruiterBootstrapsHiring) {
     Company company{"Acme LLC"};
     populateReadyCompany(company);
 
-    // Найм невозможен без рекрутера, поэтому компания заводит первого сама.
     const Worker* recruiter = company.findDepartment("Отдел кадров")->findWorker(1);
-    ASSERT_NE(recruiter, nullptr);
-    EXPECT_EQ(recruiter->getRole(), "Recruiter");
+    CHECK(recruiter != nullptr);
+    CHECK_EQUAL("Recruiter", recruiter->getRole());
 
     Worker* developer = company.hireWorker("IT-отдел", "Петров П.П.", WorkerType::SoftwareDeveloper,
                                            kDeveloperRate);
-    ASSERT_NE(developer, nullptr);
-    EXPECT_EQ(developer->getPosition(), "Разработчик ПО");
+    CHECK(developer != nullptr);
+    CHECK_EQUAL("Разработчик ПО", developer->getPosition());
 }
 
-TEST(CompanyTest, HireAssignsSequentialIdsAndContractNumber) {
+TEST(CompanyTest_HireAssignsSequentialIdsAndContractNumber) {
     Company company{"Acme LLC"};
     populateReadyCompany(company);
 
@@ -137,57 +135,57 @@ TEST(CompanyTest, HireAssignsSequentialIdsAndContractNumber) {
     Worker* second =
         company.hireWorker("IT-отдел", "Сидоров С.С.", WorkerType::SystemAdministrator, 140000.0);
 
-    ASSERT_NE(first, nullptr);
-    ASSERT_NE(second, nullptr);
-    EXPECT_NE(first->getId(), second->getId());
-    EXPECT_EQ(first->getContract().getContractNumber(),
-              Recruiter::contractNumberFor(first->getId()));
-    EXPECT_EQ(company.getTotalWorkersCount(), 3);  // рекрутер + двое
+    CHECK(first != nullptr);
+    CHECK(second != nullptr);
+    CHECK(first->getId() != second->getId());
+    CHECK_EQUAL(Recruiter::contractNumberFor(first->getId()),
+                first->getContract().getContractNumber());
+    CHECK_EQUAL(3, company.getTotalWorkersCount());
 }
 
-TEST(CompanyTest, HiredWorkerBelongsToDepartment) {
+TEST(CompanyTest_HiredWorkerBelongsToDepartment) {
     Company company{"Acme LLC"};
     populateReadyCompany(company);
     Worker* developer = company.hireWorker("IT-отдел", "Петров П.П.", WorkerType::SoftwareDeveloper,
                                            kDeveloperRate);
 
-    ASSERT_NE(developer, nullptr);
+    CHECK(developer != nullptr);
     Department* it = company.findDepartment("IT-отдел");
-    ASSERT_NE(it, nullptr);
-    EXPECT_TRUE(developer->worksIn(it));
-    EXPECT_TRUE(it->hasWorker(developer->getId()));
+    CHECK(it != nullptr);
+    CHECK(developer->worksIn(it));
+    CHECK(it->hasWorker(developer->getId()));
 }
 
-TEST(CompanyTest, HireRejectsUnknownDepartmentAndDuplicateName) {
+TEST(CompanyTest_HireRejectsUnknownDepartmentAndDuplicateName) {
     Company company{"Acme LLC"};
     populateReadyCompany(company);
 
-    EXPECT_THROW(company.hireWorker("Юридический", "Петров П.П.", WorkerType::Lawyer, 130000.0),
-                 DepartmentNotFoundException);
-    EXPECT_THROW(company.hireWorker("IT-отдел", "", WorkerType::SoftwareDeveloper, kDeveloperRate),
-                 InvalidInputException);
-    EXPECT_THROW(company.hireWorker("IT-отдел", "Петров П.П.", WorkerType::SoftwareDeveloper, 0.0),
-                 InvalidInputException);
+    CHECK_THROW(company.hireWorker("Юридический", "Петров П.П.", WorkerType::Lawyer, 130000.0),
+                DepartmentNotFoundException);
+    CHECK_THROW(company.hireWorker("IT-отдел", "", WorkerType::SoftwareDeveloper, kDeveloperRate),
+                InvalidInputException);
+    CHECK_THROW(company.hireWorker("IT-отдел", "Петров П.П.", WorkerType::SoftwareDeveloper, 0.0),
+                InvalidInputException);
 }
 
-TEST(CompanyTest, TerminateWorkerRemovesFromDepartment) {
+TEST(CompanyTest_TerminateWorkerRemovesFromDepartment) {
     Company company{"Acme LLC"};
     populateReadyCompany(company);
     Worker* developer = company.hireWorker("IT-отдел", "Петров П.П.", WorkerType::SoftwareDeveloper,
                                            kDeveloperRate);
-    ASSERT_NE(developer, nullptr);
+    CHECK(developer != nullptr);
     const int id = developer->getId();
 
     std::unique_ptr<Worker> terminated = company.terminateWorker("IT-отдел", id);
-    ASSERT_NE(terminated, nullptr);
-    EXPECT_FALSE(company.findDepartment("IT-отдел")->hasWorker(id));
-    EXPECT_FALSE(terminated->getContract().isActiveOn(today()));
+    CHECK(terminated != nullptr);
+    CHECK(!company.findDepartment("IT-отдел")->hasWorker(id));
+    CHECK(!terminated->getContract().isActiveOn(today()));
 
-    EXPECT_THROW(company.terminateWorker("IT-отдел", id), EmployeeNotFoundException);
-    EXPECT_THROW(company.terminateWorker("Нет такого", id), DepartmentNotFoundException);
+    CHECK_THROW(company.terminateWorker("IT-отдел", id), EmployeeNotFoundException);
+    CHECK_THROW(company.terminateWorker("Нет такого", id), DepartmentNotFoundException);
 }
 
-TEST(CompanyTest, PayrollSumsUpEveryDepartment) {
+TEST(CompanyTest_PayrollSumsUpEveryDepartment) {
     Company company{"Acme LLC"};
     populateReadyCompany(company);
     company.hireWorker("IT-отдел", "Петров П.П.", WorkerType::SoftwareDeveloper, kDeveloperRate);
@@ -196,11 +194,11 @@ TEST(CompanyTest, PayrollSumsUpEveryDepartment) {
     const double payroll = company.calculateCompanyPayroll();
     const double itPayroll = company.findDepartment("IT-отдел")->calculatePayroll();
 
-    EXPECT_GT(payroll, 0.0);
-    EXPECT_GT(itPayroll, 0.0);
-    EXPECT_LE(itPayroll, payroll);
+    CHECK(payroll > 0.0);
+    CHECK(itPayroll > 0.0);
+    CHECK(itPayroll <= payroll);
     const std::string report = company.generateReport();
-    EXPECT_NE(report.find("Acme LLC"), std::string::npos);
-    EXPECT_NE(report.find("ФОТ"), std::string::npos);
-    EXPECT_NE(report.find("сотрудников: 3"), std::string::npos);
+    CHECK(report.find("Acme LLC") != std::string::npos);
+    CHECK(report.find("ФОТ") != std::string::npos);
+    CHECK(report.find("сотрудников: 3") != std::string::npos);
 }

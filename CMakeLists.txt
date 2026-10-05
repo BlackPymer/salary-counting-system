@@ -12,6 +12,8 @@ endif()
 
 add_compile_options(-Wall -Wextra -Wpedantic -Wshadow)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
 
 # Ядро системы собирается в отдельную библиотеку: main.cpp появится позже,
@@ -22,29 +24,18 @@ target_include_directories(salary_core PUBLIC include)
 option(SALARY_ENABLE_TESTS "Собирать и запускать тесты" ON)
 
 if(SALARY_ENABLE_TESTS)
-    include(FetchContent)
-
-    # Тесты на GoogleTest подтягивается автоматически, ставить в систему
-    # ничего не нужно — сборка и локально, и в CI одинаковая.
-    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-    set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
-
-    FetchContent_Declare(
-        googletest
-        GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG v1.17.0
-        GIT_SHALLOW TRUE
-        GIT_PROGRESS FALSE
-    )
-    FetchContent_MakeAvailable(googletest)
+    find_package(UnitTest++ REQUIRED)
 
     enable_testing()
 
     file(GLOB TEST_SOURCES CONFIGURE_DEPENDS tests/*.cpp)
     foreach(test_source ${TEST_SOURCES})
         get_filename_component(test_name "${test_source}" NAME_WE)
-        add_executable(${test_name} ${test_source})
-        target_link_libraries(${test_name} PRIVATE salary_core GTest::gtest_main)
+        if(test_name STREQUAL "test_main")
+            continue()
+        endif()
+        add_executable(${test_name} ${test_source} tests/test_main.cpp)
+        target_link_libraries(${test_name} PRIVATE salary_core UnitTest++)
         target_include_directories(${test_name} PRIVATE tests)
         add_test(NAME ${test_name} COMMAND ${test_name})
     endforeach()

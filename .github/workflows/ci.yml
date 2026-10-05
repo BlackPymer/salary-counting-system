@@ -6,8 +6,6 @@ on:
   pull_request:
     branches: [main, master, develop]
 
-# Новый запуск отменяет предыдущий для того же коммита: лишние запуски
-# не нужны, а статус commit'а должен соответствовать последней проверке.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -21,16 +19,13 @@ jobs:
       - name: Получить исходный код
         uses: actions/checkout@v4
 
-      - name: Установить CMake и компилятор
+      - name: Установить CMake, компилятор и UnitTest++
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake g++
+          sudo apt-get install -y cmake g++ libunittest++-dev
           cmake --version
           g++ --version
 
-      # -D — это опция НАСТРОЙКИ, а не сборки. Передавать её в
-      # `cmake --build` бессмысленно: она попадёт в make, а не в компилятор.
-      # Поэтому -Werror и --coverage задаются здесь, на шаге настройки.
       - name: Настроить сборку
         run: >
           cmake -S . -B build
@@ -44,8 +39,6 @@ jobs:
       - name: Прогнать тесты
         run: ctest --test-dir build --output-on-failure
 
-      # Отчёт о покрытии виден только если сборка была с --coverage:
-      # без этого gcovr находит ноль файлов .gcda и рисует пустые 0%.
       - name: Собрать отчёт о покрытии
         working-directory: build
         run: |
@@ -59,9 +52,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - run: sudo apt-get update && sudo apt-get install -y cmake g++
+      - run: sudo apt-get update && sudo apt-get install -y cmake g++ libunittest++-dev
 
-      # Флаги предупреждений — тоже опция настройки, не сборки.
       - run: >
           cmake -S . -B build-strict
           -DCMAKE_BUILD_TYPE=Debug
@@ -71,8 +63,6 @@ jobs:
           -Woverloaded-virtual -Wnull-dereference -Wdouble-promotion
           -Wformat=2 -Wimplicit-fallthrough"
 
-      # Каждое предупреждение — провал. Отдельно от тестов: тесты могут
-      # проходить, а в коде при этом остаться мусор из шаблонов и знаков.
       - name: Собрать с максимальными предупреждениями
         run: cmake --build build-strict --parallel
 
@@ -87,12 +77,9 @@ jobs:
 
       - name: Проверить clang-format
         run: |
-          # Падает, если файлы не отформатированы под .clang-format.
           find src include tests -name '*.cpp' -o -name '*.hpp' | xargs clang-format --dry-run --Werror
 
       - name: Проверить отсутствие TODO и закомментированного кода
         run: |
-          # Эти маркеры означают незаконченную работу, которая попадёт
-          # в сдаваемый проект.
           ! grep -rn --include='*.cpp' --include='*.hpp' -E 'TODO|FIXME|XXX|HACK' src include tests
           ! grep -rn --include='*.cpp' --include='*.hpp' -E '^\s*//\s*(if|for|while|return|int|double|std::)' src include tests

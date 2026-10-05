@@ -1,0 +1,3 @@
+/home/maksim/Documents/labs/sem3/ppois/lab3/build-strict/CMakeFiles/salary_core.dir
+/home/maksim/Documents/labs/sem3/ppois/lab3/build-strict/CMakeFiles/edit_cache.dir
+/home/maksim/Documents/labs/sem3/ppois/lab3/build-strict/CMakeFiles/rebuild_cache.dir

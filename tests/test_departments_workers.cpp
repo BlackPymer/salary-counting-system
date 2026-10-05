@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <UnitTest++/UnitTest++.h>
 
 #include <algorithm>
 #include <memory>
@@ -41,9 +41,6 @@ namespace {
 constexpr double kTolerance = 0.001;
 constexpr double kBaseRate = 100000.0;
 
-// Строит компанию из десяти отделов — по одному на каждый тип отделов.
-// Список собирается через push_back: initializer_list хранит элементы как
-// const, и unique_ptr туда не переносится.
 std::vector<std::unique_ptr<Department>> buildAllDepartments() {
     std::vector<std::unique_ptr<Department>> departments;
     departments.push_back(std::make_unique<AccountingDepartment>());
@@ -59,7 +56,6 @@ std::vector<std::unique_ptr<Department>> buildAllDepartments() {
     return departments;
 }
 
-// Одного сотрудника каждого типа, по одному отделу.
 void hireOneOfEachRole(std::vector<std::unique_ptr<Department>>& departments) {
     int id = 1;
     departments[0]->addWorker(std::make_unique<Accountant>(
@@ -95,62 +91,61 @@ double roleBonusOf(const Worker* worker) {
 
 }  // namespace
 
-TEST(DepartmentTest, RejectsEmptyName) {
-    EXPECT_THROW(Department(""), InvalidInputException);
+TEST(DepartmentTest_RejectsEmptyName) {
+    CHECK_THROW(Department(""), InvalidInputException);
 }
 
-TEST(DepartmentTest, RejectsNullWorker) {
+TEST(DepartmentTest_RejectsNullWorker) {
     AccountingDepartment department;
-    EXPECT_THROW(department.addWorker(nullptr), InvalidInputException);
+    CHECK_THROW(department.addWorker(nullptr), InvalidInputException);
 }
 
-TEST(DepartmentTest, RejectsDuplicateId) {
+TEST(DepartmentTest_RejectsDuplicateId) {
     AccountingDepartment department;
     department.addWorker(
         std::make_unique<Accountant>(1, "Первый", makeContract(), makeAdvance(), "junior"));
 
-    EXPECT_THROW(department.addWorker(std::make_unique<Accountant>(1, "Второй", makeContract(),
-                                                                   makeAdvance(), "junior")),
-                 DuplicateEmployeeException);
-    EXPECT_EQ(department.getWorkersCount(), 1u);
+    CHECK_THROW(department.addWorker(std::make_unique<Accountant>(1, "Второй", makeContract(),
+                                                                  makeAdvance(), "junior")),
+                DuplicateEmployeeException);
+    CHECK_EQUAL(1u, department.getWorkersCount());
 }
 
-TEST(DepartmentTest, SetsAndClearsBackReference) {
+TEST(DepartmentTest_SetsAndClearsBackReference) {
     AccountingDepartment department;
     department.addWorker(
         std::make_unique<Accountant>(1, "Первый", makeContract(), makeAdvance(), "junior"));
 
     Worker* worker = department.findWorker(1);
-    ASSERT_NE(worker, nullptr);
-    EXPECT_TRUE(worker->worksIn(&department));
+    CHECK(worker != nullptr);
+    CHECK(worker->worksIn(&department));
 
     std::unique_ptr<Worker> removed = department.removeWorker(1);
-    EXPECT_EQ(removed->getDepartment(), nullptr);
-    EXPECT_EQ(department.findWorker(1), nullptr);
+    CHECK_EQUAL(nullptr, removed->getDepartment());
+    CHECK_EQUAL(nullptr, department.findWorker(1));
 }
 
-TEST(DepartmentTest, RemoveUnknownWorkerThrows) {
+TEST(DepartmentTest_RemoveUnknownWorkerThrows) {
     AccountingDepartment department;
-    EXPECT_THROW(department.removeWorker(42), EmployeeNotFoundException);
-    EXPECT_FALSE(department.hasWorker(42));
+    CHECK_THROW(department.removeWorker(42), EmployeeNotFoundException);
+    CHECK(!department.hasWorker(42));
 }
 
-TEST(AllDepartmentsTest, ThereAreTenWithDistinctDescriptions) {
+TEST(AllDepartmentsTest_ThereAreTenWithDistinctDescriptions) {
     const std::vector<std::unique_ptr<Department>> departments = buildAllDepartments();
-    ASSERT_EQ(departments.size(), 10u);
+    CHECK_EQUAL(10u, departments.size());
 
     std::vector<std::string> names;
     for (const std::unique_ptr<Department>& department : departments) {
-        EXPECT_FALSE(department->getDescription().empty());
+        CHECK(!department->getDescription().empty());
         names.push_back(department->getName());
     }
 
     std::sort(names.begin(), names.end());
-    EXPECT_EQ(std::adjacent_find(names.begin(), names.end()), names.end())
-        << "названия отделов повторяются";
+    CHECK(std::adjacent_find(names.begin(), names.end()) == names.end());
 }
 
-TEST(AllRolesTest, TwelveRolesHaveDistinctNamesAndSaneBonuses) {
+TEST(AllRolesTest_TwelveRolesHaveDistinctNamesAndSaneBonuses) {
     std::vector<std::unique_ptr<Department>> departments = buildAllDepartments();
     hireOneOfEachRole(departments);
 
@@ -160,39 +155,35 @@ TEST(AllRolesTest, TwelveRolesHaveDistinctNamesAndSaneBonuses) {
         for (const Worker* worker : department->getWorkers()) {
             roles.push_back(worker->getRole());
 
-            // Надбавка всегда положительна и никогда не превышает ставку:
-            // сотрудник не может заработать больше двух базовых ставок.
             const double bonus = roleBonusOf(worker);
-            EXPECT_GT(bonus, 0.0) << worker->getRole() << ": надбавка нулевая";
-            EXPECT_LT(bonus, worker->getBaseRate())
-                << worker->getRole() << ": надбавка выше ставки";
+            CHECK(bonus > 0.0);
+            CHECK(bonus < worker->getBaseRate());
             ++totalWorkers;
         }
     }
 
-    EXPECT_EQ(totalWorkers, 12);
+    CHECK_EQUAL(12, totalWorkers);
 
     std::sort(roles.begin(), roles.end());
-    EXPECT_EQ(std::adjacent_find(roles.begin(), roles.end()), roles.end())
-        << "названия ролей повторяются, роли не различаются";
+    CHECK(std::adjacent_find(roles.begin(), roles.end()) == roles.end());
 }
 
-TEST(AllRolesTest, InheritanceChainIsFourLevelsDeep) {
+TEST(AllRolesTest_InheritanceChainIsFourLevelsDeep) {
     AccountingDepartment department;
     department.addWorker(std::make_unique<PayrollAccountant>(1, "Бухгалтер по ЗП", makeContract(),
                                                              makeAdvance(), "junior", 5));
 
     Worker* worker = department.findWorker(1);
-    ASSERT_NE(worker, nullptr);
+    CHECK(worker != nullptr);
 
-    EXPECT_NE(dynamic_cast<PayrollAccountant*>(worker), nullptr);
-    EXPECT_NE(dynamic_cast<Accountant*>(worker), nullptr);
-    EXPECT_NE(dynamic_cast<Specialist*>(worker), nullptr);
-    EXPECT_NE(dynamic_cast<Worker*>(worker), nullptr);
-    EXPECT_EQ(dynamic_cast<Manager*>(worker), nullptr);
+    CHECK(dynamic_cast<PayrollAccountant*>(worker) != nullptr);
+    CHECK(dynamic_cast<Accountant*>(worker) != nullptr);
+    CHECK(dynamic_cast<Specialist*>(worker) != nullptr);
+    CHECK(dynamic_cast<Worker*>(worker) != nullptr);
+    CHECK(dynamic_cast<Manager*>(worker) == nullptr);
 }
 
-TEST(AccountantTest, SeniorCertificationRaisesBonus) {
+TEST(AccountantTest_SeniorCertificationRaisesBonus) {
     AccountingDepartment department;
     department.addWorker(
         std::make_unique<Accountant>(1, "Junior", makeContract(), makeAdvance(), "junior"));
@@ -202,47 +193,47 @@ TEST(AccountantTest, SeniorCertificationRaisesBonus) {
     const double junior = roleBonusOf(department.findWorker(1));
     const double senior = roleBonusOf(department.findWorker(2));
 
-    EXPECT_NEAR(junior, kBaseRate * 0.10, kTolerance);
-    EXPECT_NEAR(senior, kBaseRate * 0.25, kTolerance);
-    EXPECT_GT(senior, junior);
+    CHECK_CLOSE(kBaseRate * 0.10, junior, kTolerance);
+    CHECK_CLOSE(kBaseRate * 0.25, senior, kTolerance);
+    CHECK(senior > junior);
 }
 
-TEST(SoftwareDeveloperTest, FullCycleRaisesBonus) {
+TEST(SoftwareDeveloperTest_FullCycleRaisesBonus) {
     ItDepartment department;
     department.addWorker(
         std::make_unique<SoftwareDeveloper>(1, "Dev", makeContract(), makeAdvance(), "C++"));
 
     SoftwareDeveloper* developer = dynamic_cast<SoftwareDeveloper*>(department.findWorker(1));
-    ASSERT_NE(developer, nullptr);
+    CHECK(developer != nullptr);
 
     const double before = roleBonusOf(developer);
-    EXPECT_FALSE(developer->isFullCycle());
+    CHECK(!developer->isFullCycle());
 
     developer->completeTask();
     developer->reviewCode();
-    EXPECT_TRUE(developer->isFullCycle());
-    EXPECT_GT(roleBonusOf(developer), before);
+    CHECK(developer->isFullCycle());
+    CHECK(roleBonusOf(developer) > before);
 }
 
-TEST(SystemAdministratorTest, CriticalDowntimeRemovesBonus) {
+TEST(SystemAdministratorTest_CriticalDowntimeRemovesBonus) {
     ItDepartment department;
     department.addWorker(
         std::make_unique<SystemAdministrator>(1, "Sys", makeContract(), makeAdvance(), 4));
 
     SystemAdministrator* admin = dynamic_cast<SystemAdministrator*>(department.findWorker(1));
-    ASSERT_NE(admin, nullptr);
+    CHECK(admin != nullptr);
 
-    EXPECT_NEAR(roleBonusOf(admin), kBaseRate * 0.20, kTolerance);
+    CHECK_CLOSE(kBaseRate * 0.20, roleBonusOf(admin), kTolerance);
 
     admin->recordUptime(95.0);
-    EXPECT_TRUE(admin->hasCriticalDowntime());
-    EXPECT_NEAR(roleBonusOf(admin), kBaseRate * 0.11, kTolerance);
+    CHECK(admin->hasCriticalDowntime());
+    CHECK_CLOSE(kBaseRate * 0.11, roleBonusOf(admin), kTolerance);
 
-    EXPECT_THROW(admin->recordUptime(101.0), InvalidInputException);
-    EXPECT_THROW(admin->recordUptime(-1.0), InvalidInputException);
+    CHECK_THROW(admin->recordUptime(101.0), InvalidInputException);
+    CHECK_THROW(admin->recordUptime(-1.0), InvalidInputException);
 }
 
-TEST(SecurityGuardTest, NightShiftAddsBonus) {
+TEST(SecurityGuardTest_NightShiftAddsBonus) {
     SecurityDepartment department;
     department.addWorker(
         std::make_unique<SecurityGuard>(1, "Дневной", makeContract(), makeAdvance(), "day"));
@@ -252,11 +243,11 @@ TEST(SecurityGuardTest, NightShiftAddsBonus) {
     const double day = roleBonusOf(department.findWorker(1));
     const double night = roleBonusOf(department.findWorker(2));
 
-    EXPECT_NEAR(day, kBaseRate * 0.08, kTolerance);
-    EXPECT_NEAR(night, kBaseRate * 0.18, kTolerance);
+    CHECK_CLOSE(kBaseRate * 0.08, day, kTolerance);
+    CHECK_CLOSE(kBaseRate * 0.18, night, kTolerance);
 }
 
-TEST(ManagerTest, ApprovesLeaveOnlyForOwnDepartment) {
+TEST(ManagerTest_ApprovesLeaveOnlyForOwnDepartment) {
     AccountingDepartment department;
     department.addWorker(
         std::make_unique<Administrator>(1, "Главный", makeContract(), makeAdvance(), "B-1"));
@@ -264,12 +255,12 @@ TEST(ManagerTest, ApprovesLeaveOnlyForOwnDepartment) {
         std::make_unique<Accountant>(2, "Подчинённый", makeContract(), makeAdvance(), "junior"));
 
     Manager* chief = dynamic_cast<Manager*>(department.findWorker(1));
-    ASSERT_NE(chief, nullptr);
+    CHECK(chief != nullptr);
 
-    EXPECT_TRUE(chief->approveLeave(2));
-    EXPECT_FALSE(chief->approveLeave(1)) << "руководитель не утверждает отпуск себе";
-    EXPECT_FALSE(chief->approveLeave(999));
+    CHECK(chief->approveLeave(2));
+    CHECK(!chief->approveLeave(1));
+    CHECK(!chief->approveLeave(999));
     const std::string report = chief->generateReport();
-    EXPECT_NE(report.find("Главный"), std::string::npos);
-    EXPECT_NE(report.find("в подчинении 2 чел."), std::string::npos);
+    CHECK(report.find("Главный") != std::string::npos);
+    CHECK(report.find("в подчинении 2 чел.") != std::string::npos);
 }

@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <UnitTest++/UnitTest++.h>
 
 #include <memory>
 #include <string>
@@ -21,8 +21,6 @@ namespace {
 
 constexpr double kTolerance = 0.001;
 
-// Company владеет отделами через unique_ptr, поэтому готовим её на месте,
-// а не возвращаем по значению.
 void populateCompanyWithDeveloper(Company& company, int& developerId) {
     company.addDepartment(std::make_unique<HrDepartment>());
     company.addDepartment(std::make_unique<ItDepartment>());
@@ -35,111 +33,106 @@ void populateCompanyWithDeveloper(Company& company, int& developerId) {
 
 }  // namespace
 
-TEST(AbsenceTest, RejectsInvalidDays) {
-    EXPECT_THROW(Absence(0, Absence::kFullPay), InvalidInputException);
-    EXPECT_THROW(Absence(-3, Absence::kFullPay), InvalidInputException);
-    EXPECT_THROW(Absence::dayOff(0), InvalidInputException);
+TEST(AbsenceTest_RejectsInvalidDays) {
+    CHECK_THROW(Absence(0, Absence::kFullPay), InvalidInputException);
+    CHECK_THROW(Absence(-3, Absence::kFullPay), InvalidInputException);
+    CHECK_THROW(Absence::dayOff(0), InvalidInputException);
 }
 
-TEST(AbsenceTest, DayOffIsPaidPartially) {
+TEST(AbsenceTest_DayOffIsPaidPartially) {
     const std::unique_ptr<Absence> dayOff = Absence::dayOff(2);
 
-    ASSERT_NE(dayOff, nullptr);
-    EXPECT_EQ(dayOff->getDays(), 2);
-    EXPECT_DOUBLE_EQ(dayOff->getPayRate(), Absence::kHalfPay);
+    CHECK(dayOff != nullptr);
+    CHECK_EQUAL(2, dayOff->getDays());
+    CHECK_CLOSE(Absence::kHalfPay, dayOff->getPayRate(), kTolerance);
 }
 
-TEST(VacationTest, PaidAndUnpaidDifferOnlyByRate) {
+TEST(VacationTest_PaidAndUnpaidDifferOnlyByRate) {
     const std::unique_ptr<Vacation> paid = Vacation::paid(14);
     const std::unique_ptr<Vacation> unpaid = Vacation::unpaid(14);
 
-    ASSERT_NE(paid, nullptr);
-    ASSERT_NE(unpaid, nullptr);
-    EXPECT_EQ(paid->getDays(), unpaid->getDays());
-    EXPECT_DOUBLE_EQ(paid->getPayRate(), Absence::kFullPay);
-    EXPECT_DOUBLE_EQ(unpaid->getPayRate(), Absence::kNoPay);
-    EXPECT_NE(paid->getTypeName(), unpaid->getTypeName());
+    CHECK(paid != nullptr);
+    CHECK(unpaid != nullptr);
+    CHECK_EQUAL(paid->getDays(), unpaid->getDays());
+    CHECK_CLOSE(Absence::kFullPay, paid->getPayRate(), kTolerance);
+    CHECK_CLOSE(Absence::kNoPay, unpaid->getPayRate(), kTolerance);
+    CHECK(paid->getTypeName() != unpaid->getTypeName());
 }
 
-TEST(VacationTest, IsUsableThroughBaseReference) {
+TEST(VacationTest_IsUsableThroughBaseReference) {
     const Vacation paid(5, true);
     const Vacation unpaid(5, false);
     const Absence& asPaid = paid;
     const Absence& asUnpaid = unpaid;
 
-    EXPECT_DOUBLE_EQ(asPaid.getPayRate(), 1.0);
-    EXPECT_DOUBLE_EQ(asUnpaid.getPayRate(), 0.0);
+    CHECK_CLOSE(1.0, asPaid.getPayRate(), kTolerance);
+    CHECK_CLOSE(0.0, asUnpaid.getPayRate(), kTolerance);
 }
 
-TEST(SickLeaveTest, PayRateDependsOnSeniority) {
-    EXPECT_NEAR(SickLeave::forDays(7, 0)->getPayRate(), 0.6, kTolerance);
-    EXPECT_NEAR(SickLeave::forDays(7, 2)->getPayRate(), 0.6, kTolerance);
-    EXPECT_NEAR(SickLeave::forDays(7, 3)->getPayRate(), 0.8, kTolerance);
-    EXPECT_NEAR(SickLeave::forDays(7, 4)->getPayRate(), 0.8, kTolerance);
-    EXPECT_NEAR(SickLeave::forDays(7, 5)->getPayRate(), 1.0, kTolerance);
-    EXPECT_NEAR(SickLeave::forDays(7, 25)->getPayRate(), 1.0, kTolerance);
+TEST(SickLeaveTest_PayRateDependsOnSeniority) {
+    CHECK_CLOSE(0.6, SickLeave::forDays(7, 0)->getPayRate(), kTolerance);
+    CHECK_CLOSE(0.6, SickLeave::forDays(7, 2)->getPayRate(), kTolerance);
+    CHECK_CLOSE(0.8, SickLeave::forDays(7, 3)->getPayRate(), kTolerance);
+    CHECK_CLOSE(0.8, SickLeave::forDays(7, 4)->getPayRate(), kTolerance);
+    CHECK_CLOSE(1.0, SickLeave::forDays(7, 5)->getPayRate(), kTolerance);
+    CHECK_CLOSE(1.0, SickLeave::forDays(7, 25)->getPayRate(), kTolerance);
 }
 
-TEST(SickLeaveTest, ReportsSeniorityAndRejectsInvalidInput) {
+TEST(SickLeaveTest_ReportsSeniorityAndRejectsInvalidInput) {
     const std::unique_ptr<SickLeave> sick = SickLeave::forDays(3, 4);
-    ASSERT_NE(sick, nullptr);
-    EXPECT_EQ(sick->getSeniorityYears(), 4);
-    EXPECT_EQ(sick->getTypeName().find("Отпуск"), std::string::npos)
-        << "больничный не должен выглядеть как отпуск";
-    EXPECT_EQ(sick->getTypeName().find("Больничный"), 0u);
+    CHECK(sick != nullptr);
+    CHECK_EQUAL(4, sick->getSeniorityYears());
+    CHECK(sick->getTypeName().find("Отпуск") == std::string::npos);
+    CHECK_EQUAL(0u, sick->getTypeName().find("Больничный"));
 
-    EXPECT_THROW(SickLeave(0, 5), InvalidInputException);
+    CHECK_THROW(SickLeave(0, 5), InvalidInputException);
 }
 
-TEST(SickLeaveTest, NegativeSeniorityFallsBackToZero) {
-    // Стаж не может быть отрицательным, но вместо исключения приводится к нулю:
-    // выплата становится минимальной, а объект остаётся валидным.
+TEST(SickLeaveTest_NegativeSeniorityFallsBackToZero) {
     const SickLeave sick(1, -2);
-    EXPECT_EQ(sick.getSeniorityYears(), 0);
-    EXPECT_NEAR(sick.getPayRate(), 0.6, kTolerance);
+    CHECK_EQUAL(0, sick.getSeniorityYears());
+    CHECK_CLOSE(0.6, sick.getPayRate(), kTolerance);
 }
 
-TEST(WorkerAbsenceTest, AccumulatesDaysAndAveragesRates) {
+TEST(WorkerAbsenceTest_AccumulatesDaysAndAveragesRates) {
     Worker employee(1, "Тестовый", makeContract(), makeAdvance());
 
-    EXPECT_EQ(employee.getTotalAbsentDays(), 0);
-    EXPECT_DOUBLE_EQ(employee.getAveragePayRate(), 1.0)
-        << "без отсутствий ставка должна быть полной";
+    CHECK_EQUAL(0, employee.getTotalAbsentDays());
+    CHECK_CLOSE(1.0, employee.getAveragePayRate(), kTolerance);
 
-    employee.addAbsence(SickLeave::forDays(7, 2));  // 0.6
-    employee.addAbsence(Vacation::paid(14));        // 1.0
-    employee.addAbsence(Absence::dayOff(1));        // 0.5
+    employee.addAbsence(SickLeave::forDays(7, 2));
+    employee.addAbsence(Vacation::paid(14));
+    employee.addAbsence(Absence::dayOff(1));
 
-    EXPECT_EQ(employee.getAbsences().size(), 3u);
-    EXPECT_EQ(employee.getTotalAbsentDays(), 22);
-    EXPECT_NEAR(employee.getAveragePayRate(), 0.7, kTolerance);
+    CHECK_EQUAL(3u, employee.getAbsences().size());
+    CHECK_EQUAL(22, employee.getTotalAbsentDays());
+    CHECK_CLOSE(0.7, employee.getAveragePayRate(), kTolerance);
 
-    EXPECT_THROW(employee.addAbsence(nullptr), InvalidInputException);
+    CHECK_THROW(employee.addAbsence(nullptr), InvalidInputException);
 }
 
-TEST(WorkerOvertimeTest, AccumulatesUpToNorm) {
+TEST(WorkerOvertimeTest_AccumulatesUpToNorm) {
     Worker employee(1, "Тестовый", makeContract(), makeAdvance());
-    EXPECT_DOUBLE_EQ(employee.getOvertimeHours(), 0.0);
+    CHECK_CLOSE(0.0, employee.getOvertimeHours(), kTolerance);
 
     employee.registerOvertime(40.0);
     employee.registerOvertime(40.0);
-    EXPECT_DOUBLE_EQ(employee.getOvertimeHours(), Worker::kOvertimeLimitHours);
+    CHECK_CLOSE(Worker::kOvertimeLimitHours, employee.getOvertimeHours(), kTolerance);
 
-    EXPECT_THROW(employee.registerOvertime(0.5), OvertimeLimitExceededException);
-    EXPECT_THROW(employee.registerOvertime(0.0), InvalidInputException);
-    EXPECT_THROW(employee.registerOvertime(-10.0), InvalidInputException);
+    CHECK_THROW(employee.registerOvertime(0.5), OvertimeLimitExceededException);
+    CHECK_THROW(employee.registerOvertime(0.0), InvalidInputException);
+    CHECK_THROW(employee.registerOvertime(-10.0), InvalidInputException);
 }
 
-TEST(WorkerOvertimeTest, RejectedOvertimeDoesNotChangeState) {
+TEST(WorkerOvertimeTest_RejectedOvertimeDoesNotChangeState) {
     Worker employee(1, "Тестовый", makeContract(), makeAdvance());
     employee.registerOvertime(20.0);
 
-    EXPECT_THROW(employee.registerOvertime(100.0), OvertimeLimitExceededException);
-    EXPECT_DOUBLE_EQ(employee.getOvertimeHours(), 20.0)
-        << "отклонённая попытка не должна сдвигать накопленные часы";
+    CHECK_THROW(employee.registerOvertime(100.0), OvertimeLimitExceededException);
+    CHECK_CLOSE(20.0, employee.getOvertimeHours(), kTolerance);
 }
 
-TEST(CompanySimulationTest, RegistersAbsencesForWorker) {
+TEST(CompanySimulationTest_RegistersAbsencesForWorker) {
     int id = 0;
     Company company{"Acme LLC"};
     populateCompanyWithDeveloper(company, id);
@@ -148,29 +141,28 @@ TEST(CompanySimulationTest, RegistersAbsencesForWorker) {
     company.registerAbsence("IT-отдел", id, Vacation::paid(14));
 
     Worker* developer = company.findDepartment("IT-отдел")->findWorker(id);
-    ASSERT_NE(developer, nullptr);
-    EXPECT_EQ(developer->getAbsences().size(), 2u);
-    EXPECT_EQ(developer->getTotalAbsentDays(), 21);
+    CHECK(developer != nullptr);
+    CHECK_EQUAL(2u, developer->getAbsences().size());
+    CHECK_EQUAL(21, developer->getTotalAbsentDays());
 }
 
-TEST(CompanySimulationTest, ReportsAddressingErrors) {
+TEST(CompanySimulationTest_ReportsAddressingErrors) {
     int id = 0;
     Company company{"Acme LLC"};
     populateCompanyWithDeveloper(company, id);
 
-    EXPECT_THROW(company.registerAbsence("IT-отдел", 999, Absence::dayOff(1)),
-                 EmployeeNotFoundException);
-    EXPECT_THROW(company.registerAbsence("Юридический", id, Absence::dayOff(1)),
-                 DepartmentNotFoundException);
-    EXPECT_THROW(company.registerOvertime("Юридический", id, 1.0), DepartmentNotFoundException);
+    CHECK_THROW(company.registerAbsence("IT-отдел", 999, Absence::dayOff(1)),
+                EmployeeNotFoundException);
+    CHECK_THROW(company.registerAbsence("Юридический", id, Absence::dayOff(1)),
+                DepartmentNotFoundException);
+    CHECK_THROW(company.registerOvertime("Юридический", id, 1.0), DepartmentNotFoundException);
 
-    // Отсутствие несуществующего сотрудника не должно оставлять следов.
     Worker* developer = company.findDepartment("IT-отдел")->findWorker(id);
-    ASSERT_NE(developer, nullptr);
-    EXPECT_EQ(developer->getTotalAbsentDays(), 0);
+    CHECK(developer != nullptr);
+    CHECK_EQUAL(0, developer->getTotalAbsentDays());
 }
 
-TEST(CompanySimulationTest, EndPeriodClearsAccumulatedFacts) {
+TEST(CompanySimulationTest_EndPeriodClearsAccumulatedFacts) {
     int id = 0;
     Company company{"Acme LLC"};
     populateCompanyWithDeveloper(company, id);
@@ -181,16 +173,13 @@ TEST(CompanySimulationTest, EndPeriodClearsAccumulatedFacts) {
     company.endPeriod();
 
     Worker* developer = company.findDepartment("IT-отдел")->findWorker(id);
-    ASSERT_NE(developer, nullptr);
-    EXPECT_EQ(developer->getTotalAbsentDays(), 0);
-    EXPECT_TRUE(developer->getAbsences().empty());
-    EXPECT_DOUBLE_EQ(developer->getOvertimeHours(), 0.0);
-    EXPECT_DOUBLE_EQ(developer->getAveragePayRate(), 1.0);
+    CHECK(developer != nullptr);
+    CHECK_EQUAL(0, developer->getTotalAbsentDays());
+    CHECK(developer->getAbsences().empty());
+    CHECK_CLOSE(0.0, developer->getOvertimeHours(), kTolerance);
+    CHECK_CLOSE(1.0, developer->getAveragePayRate(), kTolerance);
 
-    // После закрытия периода накопление начинается заново: 80 ч снова
-    // набираются с нуля, а не продолжаются с прошлого месяца.
     company.registerOvertime("IT-отдел", id, 60.0);
-    EXPECT_NO_THROW(company.registerOvertime("IT-отдел", id, 20.0))
-        << "счётчик часов должен обнулиться, а не продолжаться";
-    EXPECT_DOUBLE_EQ(developer->getOvertimeHours(), Worker::kOvertimeLimitHours);
+    company.registerOvertime("IT-отдел", id, 20.0);
+    CHECK_CLOSE(Worker::kOvertimeLimitHours, developer->getOvertimeHours(), kTolerance);
 }
