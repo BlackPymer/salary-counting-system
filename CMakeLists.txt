@@ -16,10 +16,11 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
 
-# Ядро системы собирается в отдельную библиотеку: main.cpp появится позже,
-# а весь домен уже должен компилироваться и проверяться тестами на каждом шаге.
 add_library(salary_core STATIC ${SOURCES})
 target_include_directories(salary_core PUBLIC include)
+
+add_executable(salary_sim main.cpp)
+target_link_libraries(salary_sim PRIVATE salary_core)
 
 option(SALARY_ENABLE_TESTS "Собирать и запускать тесты" ON)
 

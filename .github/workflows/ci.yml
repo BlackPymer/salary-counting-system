@@ -43,7 +43,7 @@ jobs:
         working-directory: build
         run: |
           sudo apt-get install -y gcovr
-          gcovr --root .. --filter .. --print-summary
+          gcovr --root .. --filter '^\.\./(src|tests|include)/' --print-summary
 
   strict-warnings:
     name: Строгие предупреждения
@@ -77,15 +77,15 @@ jobs:
 
       - name: Проверить clang-format
         run: |
-          find src include tests \( -name '*.cpp' -o -name '*.hpp' \) -print0 | xargs -0 -r clang-format --dry-run --Werror
+          find src include tests main.cpp \( -name '*.cpp' -o -name '*.hpp' \) -print0 | xargs -0 -r clang-format --dry-run --Werror
 
       - name: Проверить отсутствие TODO и закомментированного кода
         run: |
-          if grep -rn --include='*.cpp' --include='*.hpp' -E 'TODO|FIXME|XXX|HACK' src include tests; then
+          if grep -rn --include='*.cpp' --include='*.hpp' -E 'TODO|FIXME|XXX|HACK' src include tests main.cpp; then
             echo "Found forbidden comments"
             exit 1
           fi
-          if grep -rn --include='*.cpp' --include='*.hpp' -E '^\s*//\s*(if|for|while|return|int|double|std::)' src include tests; then
+          if grep -rn --include='*.cpp' --include='*.hpp' -E '^\s*//\s*(if|for|while|return|int|double|std::)' src include tests main.cpp; then
             echo "Found commented-out code"
             exit 1
           fi
