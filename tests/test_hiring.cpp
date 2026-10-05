@@ -17,6 +17,7 @@
 #include "exceptions/department_not_found_exception.hpp"
 #include "exceptions/duplicate_employee_exception.hpp"
 #include "exceptions/employee_not_found_exception.hpp"
+#include "exceptions/insufficient_funds_exception.hpp"
 #include "exceptions/invalid_input_exception.hpp"
 #include "workers/worker.hpp"
 
@@ -201,4 +202,35 @@ TEST(CompanyTest_PayrollSumsUpEveryDepartment) {
     CHECK(report.find("Acme LLC") != std::string::npos);
     CHECK(report.find("ФОТ") != std::string::npos);
     CHECK(report.find("сотрудников: 3") != std::string::npos);
+}
+
+TEST(CompanyPaymentTest_AddFundsAndBalance) {
+    Company company{"Acme LLC"};
+    CHECK_CLOSE(0.0, company.getBalance(), 0.001);
+    company.addFunds(500000.0);
+    CHECK_CLOSE(500000.0, company.getBalance(), 0.001);
+    CHECK_THROW(company.addFunds(-1.0), InvalidInputException);
+}
+
+TEST(CompanyPaymentTest_EndPeriodThrowsWhenInsufficientFunds) {
+    Company company{"Acme LLC"};
+    populateReadyCompany(company);
+    company.hireWorker("IT-отдел", "Петров П.П.", WorkerType::SoftwareDeveloper, kDeveloperRate);
+    CHECK_THROW(company.endPeriod(), InsufficientFundsException);
+}
+
+TEST(CompanyPaymentTest_EndPeriodPaysAndDeductsBalance) {
+    Company company{"Acme LLC"};
+    populateReadyCompany(company);
+    company.hireWorker("IT-отдел", "Петров П.П.", WorkerType::SoftwareDeveloper, kDeveloperRate);
+    company.addFunds(1000000.0);
+
+    const double balanceBefore = company.getBalance();
+    company.endPeriod();
+    const double balanceAfter = company.getBalance();
+
+    CHECK(balanceAfter < balanceBefore);
+    CHECK(balanceAfter > 0.0);
+    const double payroll = balanceBefore - balanceAfter;
+    CHECK(payroll > 0.0);
 }

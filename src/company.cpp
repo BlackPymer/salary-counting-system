@@ -9,7 +9,9 @@
 #include "departments/hr_department.hpp"
 #include "exceptions/department_not_found_exception.hpp"
 #include "exceptions/employee_not_found_exception.hpp"
+#include "exceptions/insufficient_funds_exception.hpp"
 #include "exceptions/invalid_input_exception.hpp"
+#include "exceptions/payment_failed_exception.hpp"
 
 Company::Company(std::string name) : name_(std::move(name)) {
     if (name_.empty()) {
@@ -122,14 +124,40 @@ void Company::registerOvertime(const std::string& departmentName, int workerId, 
 }
 
 void Company::endPeriod() {
+    const double totalPayroll = calculateCompanyPayroll();
+    if (balance_ < totalPayroll) {
+        throw InsufficientFundsException("Недостаточно средств для выплаты: нужно " +
+                                         std::to_string(totalPayroll) + ", есть " +
+                                         std::to_string(balance_));
+    }
     for (const std::unique_ptr<Department>& department : departments_) {
         for (Worker* worker : department->getWorkers()) {
-            const double net = worker->calculateSalary().getNet();
-            worker->repayAdvance(net);
-            worker->resetAdvance();
-            worker->resetPeriod();
+            payWorker(worker);
         }
     }
+}
+
+void Company::addFunds(double amount) {
+    if (amount < 0.0) {
+        throw InvalidInputException("Пополнение не может быть отрицательным");
+    }
+    balance_ += amount;
+}
+
+double Company::getBalance() const {
+    return balance_;
+}
+
+void Company::payWorker(Worker* worker) {
+    if (!worker->isActive()) {
+        throw PaymentFailedException("Нельзя выплату неактивному сотруднику: " +
+                                     worker->getFullName());
+    }
+    const double net = worker->calculateSalary().getNet();
+    const double repaid = worker->repayAdvance(net);
+    balance_ -= net - repaid;
+    worker->resetAdvance();
+    worker->resetPeriod();
 }
 
 double Company::calculateCompanyPayroll() const {

@@ -1,5 +1,7 @@
 #include <UnitTest++/UnitTest++.h>
 
+#include "attendance/sick_leave.hpp"
+#include "attendance/vacation.hpp"
 #include "core/worker_factory.hpp"
 #include "financial_objects/payroll_period.hpp"
 #include "payroll/calculation_context.hpp"
@@ -65,4 +67,56 @@ TEST(ProbationDiscountStrategyTest_AppliesDiscount) {
     prob.apply(ctx, s);
     CHECK_CLOSE(85000.0, s.getGross(), kTolerance);
     CHECK_CLOSE(85000.0, s.getNet(), kTolerance);
+}
+
+TEST(AbsencePayStrategyTest_DeductsUnpaidDays) {
+    AbsencePayStrategy strategy;
+    auto contract = makeContract(300000.0, "Dev");
+    auto advance = makeAdvance(1000.0);
+    auto worker = WorkerFactory::create(1, "Иван", WorkerType::SoftwareDeveloper,
+                                        std::move(contract), std::move(advance));
+    PayrollPeriod period(2026, 10);
+    CalculationContext ctx(worker.get(), period);
+
+    Salary s(300000.0, 0.0, 300000.0);
+    strategy.apply(ctx, s);
+    CHECK_CLOSE(300000.0, s.getGross(), kTolerance);
+
+    worker->addAbsence(Vacation::unpaid(5));
+    Salary s2(300000.0, 0.0, 300000.0);
+    strategy.apply(ctx, s2);
+    const double expectedDeduction = (300000.0 / 30.0) * 5 * 1.0;
+    CHECK_CLOSE(300000.0 - expectedDeduction, s2.getGross(), kTolerance);
+}
+
+TEST(AbsencePayStrategyTest_PaidVacationNoDeduction) {
+    AbsencePayStrategy strategy;
+    auto contract = makeContract(300000.0, "Dev");
+    auto advance = makeAdvance(1000.0);
+    auto worker = WorkerFactory::create(1, "Иван", WorkerType::SoftwareDeveloper,
+                                        std::move(contract), std::move(advance));
+    PayrollPeriod period(2026, 10);
+    CalculationContext ctx(worker.get(), period);
+
+    worker->addAbsence(Vacation::paid(14));
+    Salary s(300000.0, 0.0, 300000.0);
+    strategy.apply(ctx, s);
+    CHECK_CLOSE(300000.0, s.getGross(), kTolerance);
+}
+
+TEST(AbsencePayStrategyTest_SickLeaveDeductsPartial) {
+    AbsencePayStrategy strategy;
+    auto contract = makeContract(300000.0, "Dev");
+    auto advance = makeAdvance(1000.0);
+    auto worker = WorkerFactory::create(1, "Иван", WorkerType::SoftwareDeveloper,
+                                        std::move(contract), std::move(advance));
+    PayrollPeriod period(2026, 10);
+    CalculationContext ctx(worker.get(), period);
+
+    worker->addAbsence(SickLeave::forDays(7, 2));
+    Salary s(300000.0, 0.0, 300000.0);
+    strategy.apply(ctx, s);
+    const double dailyRate = 300000.0 / 30.0;
+    const double expectedDeduction = dailyRate * 7 * (1.0 - 0.6);
+    CHECK_CLOSE(300000.0 - expectedDeduction, s.getGross(), kTolerance);
 }

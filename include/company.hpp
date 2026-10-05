@@ -31,6 +31,9 @@ public:
 
     void endPeriod();
 
+    void addFunds(double amount);
+    double getBalance() const;
+
     double calculateCompanyPayroll() const;
     int getTotalWorkersCount() const;
 
@@ -39,8 +42,10 @@ public:
 private:
     Recruiter* findRecruiter() const;
     Worker* findWorkerIn(const std::string& departmentName, int workerId) const;
+    void payWorker(Worker* worker);
 
     std::string name_;
     std::vector<std::unique_ptr<Department>> departments_;
     int nextWorkerId_ = 1;
+    double balance_ = 0.0;
 };

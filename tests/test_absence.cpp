@@ -169,6 +169,7 @@ TEST(CompanySimulationTest_EndPeriodClearsAccumulatedFacts) {
 
     company.registerAbsence("IT-отдел", id, Vacation::unpaid(5));
     company.registerOvertime("IT-отдел", id, 12.0);
+    company.addFunds(1000000.0);
 
     company.endPeriod();
 
