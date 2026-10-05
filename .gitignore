@@ -9,3 +9,4 @@ compile_commands.json
 # Служебные заметки сессии, в репозиторий им нельзя
 SESSION_NOTES.md
 build-strict/
+build-strict/
