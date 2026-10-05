@@ -4,14 +4,6 @@
 
 #include "exceptions/invalid_input_exception.hpp"
 
-namespace {
-constexpr double kBaseTechnicianRate = 0.10;
-constexpr double kCertificationBonusPerCert = 0.04;
-constexpr double kOutputBonus = 0.06;
-constexpr int kOutputThreshold = 100;
-constexpr std::size_t kMultiCertifiedMinimum = 2;
-}  // namespace
-
 Technician::Technician(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
                        std::unique_ptr<AdvancePayment> advance,
                        std::vector<std::string> equipmentCertifications)

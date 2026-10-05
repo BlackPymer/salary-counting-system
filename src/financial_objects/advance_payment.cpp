@@ -9,6 +9,7 @@ AdvancePayment::AdvancePayment(double amount, Date issueDate)
     if (amount <= 0.0) {
         throw InvalidInputException("Сумма аванса должна быть положительной");
     }
+    repaymentDue_ = Date{std::chrono::sys_days{issueDate} + std::chrono::days{kRepaymentTermDays}};
 }
 
 double AdvancePayment::getAmount() const {
@@ -29,6 +30,10 @@ bool AdvancePayment::isFullyRepaid() const {
 
 Date AdvancePayment::getIssueDate() const {
     return issueDate_;
+}
+
+Date AdvancePayment::getRepaymentDue() const {
+    return repaymentDue_;
 }
 
 double AdvancePayment::applyDeduction(double availableAmount) {

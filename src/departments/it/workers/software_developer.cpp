@@ -1,10 +1,5 @@
 #include "departments/it/workers/software_developer.hpp"
 
-namespace {
-constexpr double kBaseDeveloperRate = 0.12;
-constexpr double kReviewBonus = 0.08;
-}  // namespace
-
 SoftwareDeveloper::SoftwareDeveloper(int id, std::string fullName,
                                      std::unique_ptr<EmploymentContract> contract,
                                      std::unique_ptr<AdvancePayment> advance,

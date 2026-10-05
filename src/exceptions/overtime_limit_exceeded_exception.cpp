@@ -21,3 +21,7 @@ double OvertimeLimitExceededException::getRequestedHours() const {
 double OvertimeLimitExceededException::getLimitHours() const {
     return limitHours_;
 }
+
+int OvertimeLimitExceededException::getErrorCode() const {
+    return kErrorCode;
+}

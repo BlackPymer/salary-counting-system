@@ -5,6 +5,9 @@
 
 class ContractExpiredException : public BaseException {
 public:
+    static constexpr int kErrorCode = 4001;
+
     explicit ContractExpiredException(const std::string& message);
     explicit ContractExpiredException(const char* message);
+    int getErrorCode() const;
 };

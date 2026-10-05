@@ -5,3 +5,7 @@ UnauthorizedAccessException::UnauthorizedAccessException(const std::string& mess
 
 UnauthorizedAccessException::UnauthorizedAccessException(const char* message)
     : BaseException(message) {}
+
+int UnauthorizedAccessException::getErrorCode() const {
+    return kErrorCode;
+}

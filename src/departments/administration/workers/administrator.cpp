@@ -1,10 +1,5 @@
 #include "departments/administration/workers/administrator.hpp"
 
-namespace {
-constexpr double kOfficeAdminBonus = 0.05;
-constexpr int kBonusTaskThreshold = 10;
-}  // namespace
-
 Administrator::Administrator(int id, std::string fullName,
                              std::unique_ptr<EmploymentContract> contract,
                              std::unique_ptr<AdvancePayment> advance, std::string officeBuilding)

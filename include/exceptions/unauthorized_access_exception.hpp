@@ -5,6 +5,9 @@
 
 class UnauthorizedAccessException : public BaseException {
 public:
+    static constexpr int kErrorCode = 4013;
+
     explicit UnauthorizedAccessException(const std::string& message);
     explicit UnauthorizedAccessException(const char* message);
+    int getErrorCode() const;
 };

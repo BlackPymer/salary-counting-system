@@ -4,3 +4,7 @@ PaymentFailedException::PaymentFailedException(const std::string& message)
     : BaseException(message) {}
 
 PaymentFailedException::PaymentFailedException(const char* message) : BaseException(message) {}
+
+int PaymentFailedException::getErrorCode() const {
+    return kErrorCode;
+}

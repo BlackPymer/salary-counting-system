@@ -2,12 +2,6 @@
 
 #include "exceptions/invalid_input_exception.hpp"
 
-namespace {
-constexpr double kBaseLawyerRate = 0.13;
-constexpr double kCaseloadBonus = 0.07;
-constexpr int kCaseloadThreshold = 5;
-}  // namespace
-
 Lawyer::Lawyer(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
                std::unique_ptr<AdvancePayment> advance, std::string barNumber)
     : Specialist(id, std::move(fullName), std::move(contract), std::move(advance)),

@@ -19,10 +19,15 @@ public:
 
     void applyTax(double taxAmount);
 
+    double getBonusesTotal() const;
+    double getDeductionsTotal() const;
+
     std::string toString() const;
 
 private:
     double gross_ = 0.0;
     double taxDeduction_ = 0.0;
     double net_ = 0.0;
+    double bonusesTotal_ = 0.0;
+    double deductionsTotal_ = 0.0;
 };

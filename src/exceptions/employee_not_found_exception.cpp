@@ -14,3 +14,7 @@ int EmployeeNotFoundException::getEmployeeId() const {
 const std::string& EmployeeNotFoundException::getDepartmentName() const {
     return departmentName_;
 }
+
+int EmployeeNotFoundException::getErrorCode() const {
+    return kErrorCode;
+}

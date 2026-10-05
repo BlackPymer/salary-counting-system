@@ -6,17 +6,18 @@ void TaxStrategy::apply(const CalculationContext&, Salary& salary) const {
         return;
     }
     double tax = 0.0;
-    if (gross <= 200000.0) {
-        tax = gross * 0.13;
-    } else if (gross <= 400000.0) {
-        tax = 200000.0 * 0.13 + (gross - 200000.0) * 0.15;
-    } else if (gross <= 600000.0) {
-        tax = 200000.0 * 0.13 + 200000.0 * 0.15 + (gross - 400000.0) * 0.18;
-    } else if (gross <= 800000.0) {
-        tax = 200000.0 * 0.13 + 200000.0 * 0.15 + 200000.0 * 0.18 + (gross - 600000.0) * 0.20;
+    if (gross <= kBracket1) {
+        tax = gross * kRate13;
+    } else if (gross <= kBracket2) {
+        tax = kBracket1 * kRate13 + (gross - kBracket1) * kRate15;
+    } else if (gross <= kBracket3) {
+        tax = kBracket1 * kRate13 + kBracket1 * kRate15 + (gross - kBracket2) * kRate18;
+    } else if (gross <= kBracket4) {
+        tax = kBracket1 * kRate13 + kBracket1 * kRate15 + kBracket1 * kRate18 +
+              (gross - kBracket3) * kRate20;
     } else {
-        tax = 200000.0 * 0.13 + 200000.0 * 0.15 + 200000.0 * 0.18 + 200000.0 * 0.20 +
-              (gross - 800000.0) * 0.22;
+        tax = kBracket1 * kRate13 + kBracket1 * kRate15 + kBracket1 * kRate18 +
+              kBracket1 * kRate20 + (gross - kBracket4) * kRate22;
     }
     if (tax > 0.0) {
         salary.applyTax(tax);

@@ -8,6 +8,9 @@
 
 class SoftwareDeveloper : public Specialist {
 public:
+    static constexpr double kBaseDeveloperRate = 0.12;
+    static constexpr double kReviewBonus = 0.08;
+
     SoftwareDeveloper(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
                       std::unique_ptr<AdvancePayment> advance, std::string primaryLanguage);
 

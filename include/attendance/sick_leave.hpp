@@ -7,6 +7,11 @@
 
 class SickLeave : public Absence {
 public:
+    static constexpr int kJuniorThresholdYears = 3;
+    static constexpr int kMiddleThresholdYears = 5;
+    static constexpr double kJuniorPayRate = 0.6;
+    static constexpr double kMiddlePayRate = 0.8;
+
     SickLeave(int days, int seniorityYears);
     ~SickLeave() override = default;
 

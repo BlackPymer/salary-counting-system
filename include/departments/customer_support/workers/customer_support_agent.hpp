@@ -8,6 +8,10 @@
 
 class CustomerSupportAgent : public Specialist {
 public:
+    static constexpr double kBaseSupportRate = 0.08;
+    static constexpr double kQualityBonus = 0.07;
+    static constexpr int kServiceStandardMinutes = 15;
+
     CustomerSupportAgent(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
                          std::unique_ptr<AdvancePayment> advance, std::string supportChannel);
 

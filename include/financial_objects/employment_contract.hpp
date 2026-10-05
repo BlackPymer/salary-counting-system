@@ -34,6 +34,7 @@ public:
     Date getHireDate() const;
     Date getTerminationDate() const;
     const ProbationPeriod& getProbationPeriod() const;
+    int getRenewalCount() const;
 
 private:
     std::string contractNumber_;
@@ -41,6 +42,7 @@ private:
     Date hireDate_;
     double monthlyRate_ = 0.0;
     bool terminated_ = false;
+    int renewalCount_ = 0;
     Date terminationDate_;
     std::unique_ptr<ProbationPeriod> probationPeriod_;
 };

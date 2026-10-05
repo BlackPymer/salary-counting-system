@@ -2,12 +2,6 @@
 
 #include "exceptions/invalid_input_exception.hpp"
 
-namespace {
-constexpr double kBaseSysadminRate = 0.11;
-constexpr double kUptimeBonus = 0.09;
-constexpr double kCriticalDowntimePercent = 99.0;
-}  // namespace
-
 SystemAdministrator::SystemAdministrator(int id, std::string fullName,
                                          std::unique_ptr<EmploymentContract> contract,
                                          std::unique_ptr<AdvancePayment> advance,

@@ -6,3 +6,7 @@ DepartmentNotFoundException::DepartmentNotFoundException(const std::string& depa
 const std::string& DepartmentNotFoundException::getDepartmentName() const {
     return departmentName_;
 }
+
+int DepartmentNotFoundException::getErrorCode() const {
+    return kErrorCode;
+}

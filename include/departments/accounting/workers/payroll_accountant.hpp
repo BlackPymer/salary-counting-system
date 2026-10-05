@@ -8,6 +8,9 @@
 
 class PayrollAccountant : public Accountant {
 public:
+    static constexpr double kPayrollBonus = 0.10;
+    static constexpr int kMaxEmployeesPerPayrollAccountant = 50;
+
     PayrollAccountant(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
                       std::unique_ptr<AdvancePayment> advance, std::string certificationLevel,
                       int employeesUnderService);

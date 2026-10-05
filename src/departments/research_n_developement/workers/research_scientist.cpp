@@ -2,14 +2,6 @@
 
 #include "exceptions/invalid_input_exception.hpp"
 
-namespace {
-constexpr double kBaseResearchRate = 0.14;
-constexpr double kProjectBonus = 0.08;
-constexpr double kPublicationBonus = 0.06;
-constexpr int kProjectThreshold = 2;
-constexpr int kPublicationThreshold = 1;
-}  // namespace
-
 ResearchScientist::ResearchScientist(int id, std::string fullName,
                                      std::unique_ptr<EmploymentContract> contract,
                                      std::unique_ptr<AdvancePayment> advance,

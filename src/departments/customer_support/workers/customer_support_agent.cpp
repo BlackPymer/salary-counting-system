@@ -2,12 +2,6 @@
 
 #include "exceptions/invalid_input_exception.hpp"
 
-namespace {
-constexpr double kBaseSupportRate = 0.08;
-constexpr double kQualityBonus = 0.07;
-constexpr int kServiceStandardMinutes = 15;
-}  // namespace
-
 CustomerSupportAgent::CustomerSupportAgent(int id, std::string fullName,
                                            std::unique_ptr<EmploymentContract> contract,
                                            std::unique_ptr<AdvancePayment> advance,

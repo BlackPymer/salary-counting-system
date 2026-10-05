@@ -8,6 +8,9 @@
 
 class Administrator : public Manager {
 public:
+    static constexpr double kOfficeAdminBonus = 0.05;
+    static constexpr int kBonusTaskThreshold = 10;
+
     Administrator(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
                   std::unique_ptr<AdvancePayment> advance, std::string officeBuilding);
 

@@ -5,3 +5,7 @@ SalaryCalculationException::SalaryCalculationException(const std::string& messag
 
 SalaryCalculationException::SalaryCalculationException(const char* message)
     : BaseException(message) {}
+
+int SalaryCalculationException::getErrorCode() const {
+    return kErrorCode;
+}

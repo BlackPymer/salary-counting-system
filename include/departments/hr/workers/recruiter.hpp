@@ -8,6 +8,10 @@
 
 class Recruiter : public Specialist {
 public:
+    static constexpr double kBaseRecruiterRate = 0.10;
+    static constexpr double kHighClosingRateBonus = 0.10;
+    static constexpr double kTargetClosingRate = 0.5;
+
     static constexpr double kMaxAdvanceRate = 0.15;
 
     Recruiter(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,

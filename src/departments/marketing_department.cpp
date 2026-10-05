@@ -1,7 +1,5 @@
 #include "departments/marketing_department.hpp"
 
-MarketingDepartment::MarketingDepartment() : Department("Маркетинг") {}
-
-std::string MarketingDepartment::getDescription() const {
-    return "Продвижение, реклама, анализ рынка";
+MarketingDepartment::MarketingDepartment()
+    : Department("Маркетинг", "Продвижение, реклама, анализ рынка", kMaxHeadcount, kMonthlyBudget) {
 }

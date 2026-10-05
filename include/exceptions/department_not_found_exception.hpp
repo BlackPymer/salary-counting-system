@@ -6,6 +6,9 @@
 
 class DepartmentNotFoundException : public BaseException {
 public:
+    static constexpr int kErrorCode = 4002;
+    int getErrorCode() const;
+
     explicit DepartmentNotFoundException(const std::string& departmentName);
 
     const std::string& getDepartmentName() const;

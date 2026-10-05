@@ -8,6 +8,9 @@
 
 class Accountant : public Specialist {
 public:
+    static constexpr double kBaseSpecialistRate = 0.10;
+    static constexpr double kSeniorCertifiedBonus = 0.15;
+
     Accountant(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
                std::unique_ptr<AdvancePayment> advance, std::string certificationLevel);
 

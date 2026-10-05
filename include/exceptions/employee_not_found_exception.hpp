@@ -6,6 +6,9 @@
 
 class EmployeeNotFoundException : public BaseException {
 public:
+    static constexpr int kErrorCode = 4004;
+    int getErrorCode() const;
+
     EmployeeNotFoundException(int employeeId, const std::string& departmentName);
 
     int getEmployeeId() const;

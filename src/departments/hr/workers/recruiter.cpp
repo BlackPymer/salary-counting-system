@@ -3,12 +3,6 @@
 #include "core/date.hpp"
 #include "exceptions/invalid_input_exception.hpp"
 
-namespace {
-constexpr double kBaseRecruiterRate = 0.10;
-constexpr double kHighClosingRateBonus = 0.10;
-constexpr double kTargetClosingRate = 0.5;
-}  // namespace
-
 Recruiter::Recruiter(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
                      std::unique_ptr<AdvancePayment> advance)
     : Specialist(id, std::move(fullName), std::move(contract), std::move(advance)) {}

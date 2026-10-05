@@ -1,10 +1,5 @@
 #include "departments/accounting/workers/accountant.hpp"
 
-namespace {
-constexpr double kBaseSpecialistRate = 0.10;
-constexpr double kSeniorCertifiedBonus = 0.15;
-}  // namespace
-
 Accountant::Accountant(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
                        std::unique_ptr<AdvancePayment> advance, std::string certificationLevel)
     : Specialist(id, std::move(fullName), std::move(contract), std::move(advance)),

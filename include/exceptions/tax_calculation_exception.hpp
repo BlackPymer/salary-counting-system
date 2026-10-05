@@ -5,6 +5,9 @@
 
 class TaxCalculationException : public BaseException {
 public:
+    static constexpr int kErrorCode = 4012;
+
     explicit TaxCalculationException(const std::string& message);
     explicit TaxCalculationException(const char* message);
+    int getErrorCode() const;
 };

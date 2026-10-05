@@ -8,6 +8,12 @@
 
 class ResearchScientist : public Specialist {
 public:
+    static constexpr double kBaseResearchRate = 0.14;
+    static constexpr double kProjectBonus = 0.08;
+    static constexpr double kPublicationBonus = 0.06;
+    static constexpr int kProjectThreshold = 2;
+    static constexpr int kPublicationThreshold = 1;
+
     ResearchScientist(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
                       std::unique_ptr<AdvancePayment> advance, std::string researchArea);
 

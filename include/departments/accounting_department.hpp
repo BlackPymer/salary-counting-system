@@ -4,7 +4,8 @@
 
 class AccountingDepartment : public Department {
 public:
-    AccountingDepartment();
+    static constexpr int kMaxHeadcount = 25;
+    static constexpr double kMonthlyBudget = 3000000;
 
-    std::string getDescription() const override;
+    AccountingDepartment();
 };

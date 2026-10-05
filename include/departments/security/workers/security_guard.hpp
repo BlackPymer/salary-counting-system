@@ -8,6 +8,13 @@
 
 class SecurityGuard : public Specialist {
 public:
+    static constexpr double kBaseGuardRate = 0.08;
+    static constexpr double kNightShiftBonus = 0.10;
+    static constexpr double kIncidentBonus = 0.05;
+    static constexpr int kShiftThreshold = 20;
+    static constexpr int kIncidentBonusThreshold = 1;
+    static constexpr const char* kNightShift = "night";
+
     SecurityGuard(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
                   std::unique_ptr<AdvancePayment> advance, std::string shiftType);
 

@@ -45,6 +45,7 @@ void EmploymentContract::renew(double newMonthlyRate, Date renewalDate) {
     monthlyRate_ = newMonthlyRate;
     probationPeriod_.reset();
     hireDate_ = renewalDate;
+    ++renewalCount_;
 }
 
 void EmploymentContract::terminate(Date terminationDate) {
@@ -84,4 +85,8 @@ Date EmploymentContract::getTerminationDate() const {
 
 const ProbationPeriod& EmploymentContract::getProbationPeriod() const {
     return *probationPeriod_;
+}
+
+int EmploymentContract::getRenewalCount() const {
+    return renewalCount_;
 }

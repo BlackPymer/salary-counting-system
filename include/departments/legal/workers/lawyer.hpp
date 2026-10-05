@@ -8,6 +8,10 @@
 
 class Lawyer : public Specialist {
 public:
+    static constexpr double kBaseLawyerRate = 0.13;
+    static constexpr double kCaseloadBonus = 0.07;
+    static constexpr int kCaseloadThreshold = 5;
+
     Lawyer(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
            std::unique_ptr<AdvancePayment> advance, std::string barNumber);
 

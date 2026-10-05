@@ -6,10 +6,26 @@
 #include "exceptions/employee_not_found_exception.hpp"
 #include "exceptions/invalid_input_exception.hpp"
 
-Department::Department(std::string name) : name_(std::move(name)) {
+Department::Department(std::string name)
+    : Department(std::move(name), "", kDefaultHeadcountLimit, kDefaultMonthlyBudget) {}
+
+Department::Department(std::string name, std::string description, int headcountLimit,
+                       double monthlyBudget)
+    : name_(std::move(name)), description_(std::move(description)) {
     if (name_.empty()) {
         throw InvalidInputException("Название отдела не может быть пустым");
     }
+    if (description_.empty()) {
+        description_ = "Отдел '" + name_ + "'";
+    }
+    if (headcountLimit < 1) {
+        throw InvalidInputException("Лимит штата отдела должен быть положительным");
+    }
+    if (monthlyBudget <= 0.0) {
+        throw InvalidInputException("Бюджет отдела должен быть положительным");
+    }
+    headcountLimit_ = headcountLimit;
+    monthlyBudget_ = monthlyBudget;
 }
 
 void Department::addWorker(std::unique_ptr<Worker> worker) {
@@ -18,6 +34,9 @@ void Department::addWorker(std::unique_ptr<Worker> worker) {
     }
     if (hasWorker(worker->getId())) {
         throw DuplicateEmployeeException(worker->getId(), worker->getFullName());
+    }
+    if (workers_.size() >= static_cast<std::size_t>(headcountLimit_)) {
+        throw InvalidInputException("Превышен лимит штата отдела '" + name_ + "'");
     }
     worker->setDepartment(this);
     workers_.push_back(std::move(worker));
@@ -72,6 +91,14 @@ const std::string& Department::getName() const {
     return name_;
 }
 
+int Department::getHeadcountLimit() const {
+    return headcountLimit_;
+}
+
+double Department::getMonthlyBudget() const {
+    return monthlyBudget_;
+}
+
 std::string Department::getDescription() const {
-    return "Отдел '" + name_ + "', сотрудников: " + std::to_string(workers_.size());
+    return description_ + ", сотрудников: " + std::to_string(workers_.size());
 }

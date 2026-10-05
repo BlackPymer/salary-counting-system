@@ -13,3 +13,7 @@ int DuplicateEmployeeException::getEmployeeId() const {
 const std::string& DuplicateEmployeeException::getFullName() const {
     return fullName_;
 }
+
+int DuplicateEmployeeException::getErrorCode() const {
+    return kErrorCode;
+}

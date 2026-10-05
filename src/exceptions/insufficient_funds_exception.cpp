@@ -5,3 +5,7 @@ InsufficientFundsException::InsufficientFundsException(const std::string& messag
 
 InsufficientFundsException::InsufficientFundsException(const char* message)
     : BaseException(message) {}
+
+int InsufficientFundsException::getErrorCode() const {
+    return kErrorCode;
+}

@@ -4,7 +4,8 @@
 
 class CustomerSupportDepartment : public Department {
 public:
-    CustomerSupportDepartment();
+    static constexpr int kMaxHeadcount = 50;
+    static constexpr double kMonthlyBudget = 4000000;
 
-    std::string getDescription() const override;
+    CustomerSupportDepartment();
 };

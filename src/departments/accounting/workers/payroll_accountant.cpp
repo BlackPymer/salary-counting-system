@@ -2,11 +2,6 @@
 
 #include "exceptions/invalid_input_exception.hpp"
 
-namespace {
-constexpr double kPayrollBonus = 0.10;
-constexpr int kMaxEmployeesPerPayrollAccountant = 50;
-}  // namespace
-
 PayrollAccountant::PayrollAccountant(int id, std::string fullName,
                                      std::unique_ptr<EmploymentContract> contract,
                                      std::unique_ptr<AdvancePayment> advance,

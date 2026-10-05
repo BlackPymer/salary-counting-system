@@ -26,6 +26,7 @@ void Salary::applyBonus(double amount) {
     }
     gross_ += amount;
     net_ += amount;
+    bonusesTotal_ += amount;
 }
 
 void Salary::applyDeduction(double amount) {
@@ -34,6 +35,7 @@ void Salary::applyDeduction(double amount) {
     }
     gross_ -= amount;
     net_ -= amount;
+    deductionsTotal_ += amount;
 }
 
 void Salary::applyRepayment(double amount) {
@@ -55,6 +57,14 @@ void Salary::applyTax(double taxAmount) {
     }
     taxDeduction_ += taxAmount;
     net_ -= taxAmount;
+}
+
+double Salary::getBonusesTotal() const {
+    return bonusesTotal_;
+}
+
+double Salary::getDeductionsTotal() const {
+    return deductionsTotal_;
 }
 
 std::string Salary::toString() const {

@@ -5,7 +5,7 @@ void AbsencePayStrategy::apply(const CalculationContext& context, Salary& salary
     if (absences.empty()) {
         return;
     }
-    const double dailyRate = context.getBaseRate() / 30.0;
+    const double dailyRate = context.getBaseRate() / kDaysPerMonth;
     double deduction = 0.0;
     for (const auto& absence : absences) {
         deduction += dailyRate * absence->getDays() * (1.0 - absence->getPayRate());

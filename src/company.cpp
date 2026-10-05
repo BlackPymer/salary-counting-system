@@ -13,10 +13,47 @@
 #include "exceptions/invalid_input_exception.hpp"
 #include "exceptions/payment_failed_exception.hpp"
 
-Company::Company(std::string name) : name_(std::move(name)) {
+Company::Company(std::string name) : Company(std::move(name), "", "", 0, "", "", "") {}
+
+Company::Company(std::string name, std::string address, std::string taxId, int foundedYear,
+                 std::string industry, std::string ceoName, std::string website)
+    : name_(std::move(name)),
+      address_(std::move(address)),
+      taxId_(std::move(taxId)),
+      foundedYear_(foundedYear),
+      industry_(std::move(industry)),
+      ceoName_(std::move(ceoName)),
+      website_(std::move(website)) {
     if (name_.empty()) {
         throw InvalidInputException("Название компании не может быть пустым");
     }
+    if (foundedYear_ < 0) {
+        throw InvalidInputException("Год основания не может быть отрицательным");
+    }
+}
+
+const std::string& Company::getAddress() const {
+    return address_;
+}
+
+const std::string& Company::getTaxId() const {
+    return taxId_;
+}
+
+int Company::getFoundedYear() const {
+    return foundedYear_;
+}
+
+const std::string& Company::getIndustry() const {
+    return industry_;
+}
+
+const std::string& Company::getCeoName() const {
+    return ceoName_;
+}
+
+const std::string& Company::getWebsite() const {
+    return website_;
 }
 
 void Company::addDepartment(std::unique_ptr<Department> department) {
@@ -180,6 +217,9 @@ std::string Company::generateReport() const {
     std::ostringstream report;
     report << "Компания '" << name_ << "', отделов: " << departments_.size()
            << ", сотрудников: " << getTotalWorkersCount() << '\n';
+    report << "Реквизиты: ИНН " << taxId_ << ", адрес: " << address_
+           << ", основан: " << foundedYear_ << ", директор: " << ceoName_
+           << ", отрасль: " << industry_ << ", сайт: " << website_ << '\n';
     for (const std::unique_ptr<Department>& department : departments_) {
         report << "  - " << department->getDescription() << '\n';
     }

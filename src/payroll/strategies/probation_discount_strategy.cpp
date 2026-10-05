@@ -2,7 +2,7 @@
 
 void ProbationDiscountStrategy::apply(const CalculationContext& context, Salary& salary) const {
     if (context.isOnProbation()) {
-        const double discount = salary.getGross() * 0.15;
+        const double discount = salary.getGross() * kProbationDiscount;
         if (discount > 0.0) {
             salary.applyDeduction(discount);
         }

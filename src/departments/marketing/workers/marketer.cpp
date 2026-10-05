@@ -2,12 +2,6 @@
 
 #include "exceptions/invalid_input_exception.hpp"
 
-namespace {
-constexpr double kBaseMarketerRate = 0.10;
-constexpr double kEfficiencyBonus = 0.08;
-constexpr double kTargetLeadsPerCampaign = 50.0;
-}  // namespace
-
 Marketer::Marketer(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
                    std::unique_ptr<AdvancePayment> advance)
     : Specialist(id, std::move(fullName), std::move(contract), std::move(advance)) {}

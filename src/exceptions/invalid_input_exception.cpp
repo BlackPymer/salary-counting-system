@@ -3,3 +3,7 @@
 InvalidInputException::InvalidInputException(const std::string& message) : BaseException(message) {}
 
 InvalidInputException::InvalidInputException(const char* message) : BaseException(message) {}
+
+int InvalidInputException::getErrorCode() const {
+    return kErrorCode;
+}

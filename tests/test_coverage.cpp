@@ -18,9 +18,14 @@
 #include "exceptions/duplicate_employee_exception.hpp"
 #include "exceptions/employee_not_found_exception.hpp"
 #include "exceptions/file_io_exception.hpp"
+#include "exceptions/insufficient_funds_exception.hpp"
 #include "exceptions/invalid_contract_exception.hpp"
 #include "exceptions/invalid_input_exception.hpp"
+#include "exceptions/overtime_limit_exceeded_exception.hpp"
 #include "exceptions/payment_failed_exception.hpp"
+#include "exceptions/salary_calculation_exception.hpp"
+#include "exceptions/tax_calculation_exception.hpp"
+#include "exceptions/unauthorized_access_exception.hpp"
 #include "financial_objects/payroll_period.hpp"
 #include "financial_objects/probation_period.hpp"
 #include "financial_objects/salary.hpp"
@@ -300,6 +305,7 @@ TEST(CompanyTest_AddDuplicateDepartmentThrows) {
 TEST(CompanyTest_AppointRecruiterRequiresHrDepartment) {
     Company company("Acme");
     company.addDepartment(std::make_unique<ItDepartment>());
+    CHECK_THROW(company.appointRecruiter("", 90000.0), InvalidInputException);
     CHECK_THROW(company.appointRecruiter("Иванова М.С.", 90000.0), DepartmentNotFoundException);
     CHECK_EQUAL(1u, company.getDepartmentsCount());
 }
@@ -418,4 +424,97 @@ TEST(ExceptionsTest_ExposedGettersAndMessageConstructors) {
     CHECK(std::string(contractString.what()).find("bad") != std::string::npos);
     const InvalidContractException contractLiteral("bad");
     CHECK(std::string(contractLiteral.what()).find("bad") != std::string::npos);
+}
+
+TEST(ExceptionsTest_ErrorCodes) {
+    CHECK_EQUAL(4001, ContractExpiredException("x").getErrorCode());
+    CHECK_EQUAL(4002, DepartmentNotFoundException("Отдел").getErrorCode());
+    CHECK_EQUAL(4003, DuplicateEmployeeException(1, "x").getErrorCode());
+    CHECK_EQUAL(4004, EmployeeNotFoundException(1, "Отдел").getErrorCode());
+    CHECK_EQUAL(4005, FileIoException("x").getErrorCode());
+    CHECK_EQUAL(4006, InsufficientFundsException("x").getErrorCode());
+    CHECK_EQUAL(4007, InvalidContractException("x").getErrorCode());
+    CHECK_EQUAL(4008, InvalidInputException("x").getErrorCode());
+    CHECK_EQUAL(4009, OvertimeLimitExceededException("x", 5.0, 2.0).getErrorCode());
+    CHECK_EQUAL(4010, PaymentFailedException("x").getErrorCode());
+    CHECK_EQUAL(4011, SalaryCalculationException("x").getErrorCode());
+    CHECK_EQUAL(4012, TaxCalculationException("x").getErrorCode());
+    CHECK_EQUAL(4013, UnauthorizedAccessException("x").getErrorCode());
+}
+
+TEST(DepartmentTest_HeadcountLimitAndBudget) {
+    const Department defaults("Отдел по умолчанию");
+    CHECK_EQUAL(Department::kDefaultHeadcountLimit, defaults.getHeadcountLimit());
+    CHECK_CLOSE(Department::kDefaultMonthlyBudget, defaults.getMonthlyBudget(), kTolerance);
+
+    const Department custom("Отдел", "Описание отдела", 5, 250000.0);
+    CHECK_EQUAL(5, custom.getHeadcountLimit());
+    CHECK_CLOSE(250000.0, custom.getMonthlyBudget(), kTolerance);
+    CHECK_EQUAL("Описание отдела, сотрудников: 0", custom.getDescription());
+
+    CHECK_THROW(Department("Отдел", "Описание", 0, 100.0), InvalidInputException);
+    CHECK_THROW(Department("Отдел", "Описание", 10, 0.0), InvalidInputException);
+}
+
+TEST(DepartmentTest_HeadcountLimitRejectsOverflow) {
+    Department tiny("Крошечный", "Описание", 1, 100000.0);
+    tiny.addWorker(std::make_unique<Specialist>(1, "Первый", makeContract(), makeAdvance()));
+    CHECK_THROW(
+        tiny.addWorker(std::make_unique<Specialist>(2, "Второй", makeContract(), makeAdvance())),
+        InvalidInputException);
+    CHECK_EQUAL(1u, tiny.getWorkersCount());
+}
+
+TEST(PayrollPeriodTest_DaysInMonth) {
+    CHECK_EQUAL(29, PayrollPeriod(2024, 2).getDaysInMonth());
+    CHECK_EQUAL(30, PayrollPeriod(2023, 4).getDaysInMonth());
+    CHECK_EQUAL(31, PayrollPeriod(2025, 1).getDaysInMonth());
+    const PayrollPeriod current;
+    CHECK(current.getDaysInMonth() >= 28);
+    CHECK(current.getDaysInMonth() <= 31);
+}
+
+TEST(AdvancePaymentTest_RepaymentDueIsThirtyDaysAfterIssue) {
+    const Date issued{std::chrono::year{2025}, std::chrono::January, std::chrono::day{15}};
+    const AdvancePayment advance(1000.0, issued);
+    const Date due = advance.getRepaymentDue();
+    CHECK_EQUAL(2025, static_cast<int>(due.year()));
+    CHECK_EQUAL(2, static_cast<unsigned>(due.month()));
+    CHECK_EQUAL(14, static_cast<unsigned>(due.day()));
+}
+
+TEST(EmploymentContractTest_RenewalCount) {
+    EmploymentContract contract("T-1", "Должность", today(), 100000.0);
+    CHECK_EQUAL(0, contract.getRenewalCount());
+    contract.renew(110000.0, daysAfter(today(), 30));
+    contract.renew(120000.0, daysAfter(today(), 60));
+    CHECK_EQUAL(2, contract.getRenewalCount());
+}
+
+TEST(SalaryTest_AccumulatesBonusesAndDeductions) {
+    Salary salary;
+    salary.applyBonus(5000.0);
+    salary.applyBonus(1500.0);
+    salary.applyDeduction(700.0);
+    CHECK_CLOSE(6500.0, salary.getBonusesTotal(), kTolerance);
+    CHECK_CLOSE(700.0, salary.getDeductionsTotal(), kTolerance);
+}
+
+TEST(CompanyTest_RequisitesInReport) {
+    Company company("Симуля-ЛТД", "г. Москва, ул. Зарплатная, 1", "7700000000", 2010,
+                    "Разработка ПО", "Иванов И.И.", "https://salary.example.com");
+    CHECK_EQUAL("г. Москва, ул. Зарплатная, 1", company.getAddress());
+    CHECK_EQUAL("7700000000", company.getTaxId());
+    CHECK_EQUAL(2010, company.getFoundedYear());
+    CHECK_EQUAL("Разработка ПО", company.getIndustry());
+    CHECK_EQUAL("Иванов И.И.", company.getCeoName());
+    CHECK_EQUAL("https://salary.example.com", company.getWebsite());
+
+    const std::string report = company.generateReport();
+    CHECK(report.find("Компания 'Симуля-ЛТД'") != std::string::npos);
+    CHECK(report.find("ИНН 7700000000") != std::string::npos);
+    CHECK(report.find("основан: 2010") != std::string::npos);
+    CHECK(report.find("директор: Иванов И.И.") != std::string::npos);
+
+    CHECK_THROW(Company("X", "", "", -1, "", "", ""), InvalidInputException);
 }

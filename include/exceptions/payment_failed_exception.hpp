@@ -5,6 +5,9 @@
 
 class PaymentFailedException : public BaseException {
 public:
+    static constexpr int kErrorCode = 4010;
+
     explicit PaymentFailedException(const std::string& message);
     explicit PaymentFailedException(const char* message);
+    int getErrorCode() const;
 };

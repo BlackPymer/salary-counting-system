@@ -6,6 +6,9 @@
 
 class OvertimeLimitExceededException : public BaseException {
 public:
+    static constexpr int kErrorCode = 4009;
+    int getErrorCode() const;
+
     OvertimeLimitExceededException(const std::string& fullName, double requestedHours,
                                    double limitHours);
 

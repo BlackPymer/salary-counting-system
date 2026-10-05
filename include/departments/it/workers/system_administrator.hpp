@@ -8,6 +8,10 @@
 
 class SystemAdministrator : public Specialist {
 public:
+    static constexpr double kBaseSysadminRate = 0.11;
+    static constexpr double kUptimeBonus = 0.09;
+    static constexpr double kCriticalDowntimePercent = 99.0;
+
     SystemAdministrator(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
                         std::unique_ptr<AdvancePayment> advance, int serversMaintained);
 

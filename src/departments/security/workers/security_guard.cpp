@@ -2,15 +2,6 @@
 
 #include "exceptions/invalid_input_exception.hpp"
 
-namespace {
-constexpr double kBaseGuardRate = 0.08;
-constexpr double kNightShiftBonus = 0.10;
-constexpr double kIncidentBonus = 0.05;
-constexpr int kShiftThreshold = 20;
-constexpr int kIncidentBonusThreshold = 1;
-constexpr const char* kNightShift = "night";
-}  // namespace
-
 SecurityGuard::SecurityGuard(int id, std::string fullName,
                              std::unique_ptr<EmploymentContract> contract,
                              std::unique_ptr<AdvancePayment> advance, std::string shiftType)

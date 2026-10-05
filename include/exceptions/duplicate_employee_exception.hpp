@@ -6,6 +6,9 @@
 
 class DuplicateEmployeeException : public BaseException {
 public:
+    static constexpr int kErrorCode = 4003;
+    int getErrorCode() const;
+
     DuplicateEmployeeException(int employeeId, const std::string& fullName);
 
     int getEmployeeId() const;

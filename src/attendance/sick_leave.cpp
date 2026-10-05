@@ -1,13 +1,5 @@
 #include "attendance/sick_leave.hpp"
 
-namespace {
-
-constexpr int kJuniorThresholdYears = 3;
-constexpr int kMiddleThresholdYears = 5;
-constexpr double kJuniorPayRate = 0.6;
-constexpr double kMiddlePayRate = 0.8;
-}  // namespace
-
 SickLeave::SickLeave(int days, int seniorityYears)
     : Absence(days, kFullPay), seniorityYears_(seniorityYears) {
     if (seniorityYears < 0) {

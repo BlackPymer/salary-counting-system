@@ -4,11 +4,23 @@
 
 #include "exceptions/invalid_input_exception.hpp"
 
+namespace {
+
+int daysInMonthOf(int year, int month) {
+    const std::chrono::year_month ym(std::chrono::year{year},
+                                     std::chrono::month{static_cast<unsigned int>(month)});
+    return static_cast<int>(
+        static_cast<unsigned>(std::chrono::year_month_day{ym / std::chrono::last}.day()));
+}
+
+}  // namespace
+
 PayrollPeriod::PayrollPeriod() {
     const auto now = std::chrono::system_clock::now();
     const auto ymd = std::chrono::year_month_day(std::chrono::floor<std::chrono::days>(now));
     year_ = static_cast<int>(ymd.year());
     month_ = static_cast<int>(static_cast<unsigned int>(ymd.month()));
+    daysInMonth_ = daysInMonthOf(year_, month_);
 }
 
 PayrollPeriod::PayrollPeriod(int year, int month) : year_(year), month_(month) {
@@ -18,6 +30,7 @@ PayrollPeriod::PayrollPeriod(int year, int month) : year_(year), month_(month) {
     if (year_ < 1) {
         throw InvalidInputException("Год должен быть положительным");
     }
+    daysInMonth_ = daysInMonthOf(year_, month_);
 }
 
 int PayrollPeriod::getYear() const {
@@ -26,6 +39,10 @@ int PayrollPeriod::getYear() const {
 
 int PayrollPeriod::getMonth() const {
     return month_;
+}
+
+int PayrollPeriod::getDaysInMonth() const {
+    return daysInMonth_;
 }
 
 Date PayrollPeriod::getFirstDay() const {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -9,6 +10,12 @@
 
 class Technician : public Specialist {
 public:
+    static constexpr double kBaseTechnicianRate = 0.10;
+    static constexpr double kCertificationBonusPerCert = 0.04;
+    static constexpr double kOutputBonus = 0.06;
+    static constexpr int kOutputThreshold = 100;
+    static constexpr std::size_t kMultiCertifiedMinimum = 2;
+
     Technician(int id, std::string fullName, std::unique_ptr<EmploymentContract> contract,
                std::unique_ptr<AdvancePayment> advance,
                std::vector<std::string> equipmentCertifications);

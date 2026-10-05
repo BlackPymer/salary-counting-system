@@ -13,6 +13,8 @@ class Recruiter;
 class Company {
 public:
     explicit Company(std::string name);
+    Company(std::string name, std::string address, std::string taxId, int foundedYear,
+            std::string industry, std::string ceoName, std::string website);
 
     void addDepartment(std::unique_ptr<Department> department);
     Department* findDepartment(const std::string& name) const;
@@ -37,6 +39,13 @@ public:
     double calculateCompanyPayroll() const;
     int getTotalWorkersCount() const;
 
+    const std::string& getAddress() const;
+    const std::string& getTaxId() const;
+    int getFoundedYear() const;
+    const std::string& getIndustry() const;
+    const std::string& getCeoName() const;
+    const std::string& getWebsite() const;
+
     std::string generateReport() const;
 
 private:
@@ -45,6 +54,12 @@ private:
     void payWorker(Worker* worker);
 
     std::string name_;
+    std::string address_;
+    std::string taxId_;
+    int foundedYear_ = 0;
+    std::string industry_;
+    std::string ceoName_;
+    std::string website_;
     std::vector<std::unique_ptr<Department>> departments_;
     int nextWorkerId_ = 1;
     double balance_ = 0.0;
